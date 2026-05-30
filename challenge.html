@@ -1,0 +1,1699 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Eksperika — Challenge Mode</title>
+<link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Space+Grotesk:wght@300;400;500;600;700&family=Space+Mono:ital,wght@0,400;0,700;1,400&display=swap" rel="stylesheet">
+<style>
+:root {
+  --bg: #05080f;
+  --bg2: #090d17;
+  --panel: #0b1020;
+  --panel2: #0f1628;
+  --border: #1a2540;
+  --border2: #243050;
+  --neon-green: #00ff88;
+  --neon-blue: #00c8ff;
+  --neon-red: #ff3060;
+  --neon-yellow: #ffe600;
+  --neon-purple: #b44aff;
+  --neon-orange: #ff7a00;
+  --text: #c8d8f0;
+  --text-dim: #4a6080;
+  --text-bright: #e8f4ff;
+  --glow-g: 0 0 18px #00ff8860, 0 0 40px #00ff8820;
+  --glow-b: 0 0 18px #00c8ff60, 0 0 40px #00c8ff20;
+  --glow-r: 0 0 18px #ff306060, 0 0 40px #ff306020;
+  --glow-p: 0 0 18px #b44aff60, 0 0 40px #b44aff20;
+}
+
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+body {
+  background: var(--bg);
+  color: var(--text);
+  font-family: 'Space Grotesk', sans-serif;
+  min-height: 100vh;
+  overflow-x: hidden;
+  cursor: none;
+}
+
+/* CUSTOM CURSOR */
+#cursor { position: fixed; width: 32px; height: 32px; border: 2px solid var(--neon-blue); border-radius: 50%; pointer-events: none; z-index: 9999; transform: translate(-50%, -50%); transition: transform 0.1s, border-color 0.2s, width 0.2s, height 0.2s; mix-blend-mode: screen; }
+#cursorDot { position: fixed; width: 6px; height: 6px; background: var(--neon-blue); border-radius: 50%; pointer-events: none; z-index: 9999; transform: translate(-50%, -50%); }
+body:has(button:hover) #cursor, body:has(a:hover) #cursor, body:has([draggable]:hover) #cursor { width: 48px; height: 48px; border-color: var(--neon-green); }
+
+/* SCANLINE OVERLAY */
+body::before {
+  content: '';
+  position: fixed; inset: 0; z-index: 9990; pointer-events: none;
+  background: repeating-linear-gradient(0deg, transparent, transparent 2px, rgba(0,0,0,0.08) 2px, rgba(0,0,0,0.08) 4px);
+}
+
+/* GRID BACKGROUND */
+body::after {
+  content: '';
+  position: fixed; inset: 0; z-index: 0; pointer-events: none;
+  background-image:
+    linear-gradient(rgba(0,200,255,0.04) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(0,200,255,0.04) 1px, transparent 1px);
+  background-size: 40px 40px;
+}
+
+/* HEADER */
+header {
+  position: relative; z-index: 10;
+  padding: 16px 32px;
+  display: flex; align-items: center; gap: 20px;
+  border-bottom: 1px solid var(--border);
+  background: linear-gradient(180deg, rgba(0,200,255,0.04) 0%, transparent 100%);
+}
+.logo-text { font-family: 'Bebas Neue', sans-serif; font-size: 28px; letter-spacing: 4px; color: var(--neon-blue); text-shadow: var(--glow-b); }
+.logo-sub { font-family: 'Space Mono', monospace; font-size: 10px; color: var(--text-dim); letter-spacing: 3px; text-transform: uppercase; }
+.header-spacer { flex: 1; }
+.mode-badge { font-family: 'Space Mono', monospace; font-size: 10px; letter-spacing: 3px; padding: 6px 14px; border: 1px solid var(--neon-red); color: var(--neon-red); text-shadow: var(--glow-r); animation: blink-border 2s infinite; }
+@keyframes blink-border { 0%,100%{opacity:1} 50%{opacity:0.5} }
+
+/* TAB NAVIGATION */
+.tab-nav {
+  position: relative; z-index: 10;
+  display: flex; gap: 0;
+  border-bottom: 1px solid var(--border);
+  background: var(--bg2);
+  padding: 0 32px;
+}
+.tab-btn {
+  font-family: 'Space Mono', monospace; font-size: 11px; letter-spacing: 2px; text-transform: uppercase;
+  padding: 16px 28px; border: none; background: none; color: var(--text-dim);
+  cursor: none; position: relative; transition: color 0.3s;
+  border-bottom: 2px solid transparent; margin-bottom: -1px;
+}
+.tab-btn::before { content: attr(data-num); font-size: 9px; color: var(--text-dim); margin-right: 8px; }
+.tab-btn:hover { color: var(--text); }
+.tab-btn.active { color: var(--neon-green); border-bottom-color: var(--neon-green); text-shadow: var(--glow-g); }
+.tab-btn.active::after { content: ''; position: absolute; bottom: -1px; left: 0; right: 0; height: 1px; background: var(--neon-green); box-shadow: var(--glow-g); }
+
+/* MAIN LAYOUT */
+main { position: relative; z-index: 10; }
+.lab-panel { display: none; padding: 28px 32px; }
+.lab-panel.active { display: grid; }
+
+/* PANEL COMMON */
+.card {
+  background: var(--panel);
+  border: 1px solid var(--border);
+  padding: 20px;
+  position: relative;
+}
+.card::before {
+  content: '';
+  position: absolute; top: 0; left: 0; right: 0; height: 1px;
+  background: linear-gradient(90deg, transparent, var(--neon-blue), transparent);
+  opacity: 0.4;
+}
+.card-title {
+  font-family: 'Bebas Neue', sans-serif; font-size: 14px; letter-spacing: 3px;
+  color: var(--text-dim); margin-bottom: 16px; display: flex; align-items: center; gap: 10px;
+}
+.card-title .dot { width: 6px; height: 6px; border-radius: 50%; background: var(--neon-blue); box-shadow: var(--glow-b); }
+
+/* ──────────────────────────────────────────
+   LAB 1: KIMIA
+────────────────────────────────────────── */
+#lab-chem { grid-template-columns: 320px 1fr 260px; grid-template-rows: auto 1fr; gap: 16px; }
+
+/* Mission Header */
+.mission-header {
+  grid-column: 1 / -1;
+  background: var(--panel2);
+  border: 1px solid var(--border);
+  padding: 16px 24px;
+  display: flex; align-items: center; gap: 20px;
+}
+.mission-icon { font-size: 28px; }
+.mission-title { font-family: 'Bebas Neue', sans-serif; font-size: 22px; letter-spacing: 3px; color: var(--text-bright); }
+.mission-desc { font-size: 12px; color: var(--text-dim); font-family: 'Space Mono', monospace; }
+.mission-spacer { flex: 1; }
+.mission-timer { font-family: 'Space Mono', monospace; font-size: 28px; color: var(--neon-yellow); text-shadow: 0 0 18px #ffe60060; letter-spacing: 4px; }
+.mission-timer.danger { color: var(--neon-red); text-shadow: var(--glow-r); animation: pulse 0.5s infinite; }
+@keyframes pulse { 0%,100%{opacity:1} 50%{opacity:0.4} }
+
+/* Compounds Panel */
+.compounds-panel { grid-column: 1; }
+.compound-item {
+  display: flex; align-items: center; gap: 12px;
+  padding: 12px; margin-bottom: 8px;
+  border: 1px solid var(--border);
+  background: var(--bg);
+  cursor: none; transition: all 0.2s;
+  user-select: none;
+}
+.compound-item:hover { border-color: var(--neon-blue); background: rgba(0,200,255,0.05); }
+.compound-item.selected { border-color: var(--neon-green); background: rgba(0,255,136,0.07); }
+.compound-icon { font-size: 22px; }
+.compound-info { flex: 1; }
+.compound-name { font-family: 'Space Mono', monospace; font-size: 12px; color: var(--text-bright); font-weight: 700; }
+.compound-ph { font-size: 10px; color: var(--text-dim); }
+.compound-ph span { color: var(--neon-blue); }
+.add-btn {
+  padding: 6px 12px; font-family: 'Space Mono', monospace; font-size: 10px;
+  background: none; border: 1px solid var(--border2); color: var(--text-dim);
+  cursor: none; transition: all 0.2s; letter-spacing: 1px;
+}
+.add-btn:hover { border-color: var(--neon-green); color: var(--neon-green); text-shadow: var(--glow-g); }
+.add-btn:active { transform: scale(0.95); }
+
+/* Reaction Chamber */
+.reaction-chamber {
+  grid-column: 2; display: flex; flex-direction: column; gap: 12px;
+}
+.beaker-area {
+  flex: 1; display: flex; flex-direction: column; align-items: center; justify-content: center;
+  background: var(--bg); border: 1px solid var(--border); padding: 20px; position: relative; min-height: 280px;
+}
+.beaker-svg { position: relative; }
+.beaker-container { position: relative; width: 180px; height: 240px; }
+.beaker-svg-el { width: 100%; height: 100%; }
+.liquid-fill {
+  position: absolute; bottom: 14px; left: 18px; right: 18px;
+  border-radius: 0 0 8px 8px;
+  transition: height 0.8s cubic-bezier(.4,0,.2,1), background 0.8s;
+  overflow: hidden;
+}
+.liquid-wave {
+  position: absolute; top: -8px; left: -10px; right: -10px; height: 16px;
+  background: inherit; border-radius: 50%;
+  animation: wave 2s ease-in-out infinite;
+}
+@keyframes wave { 0%,100%{transform:translateY(0)} 50%{transform:translateY(-4px)} }
+.bubble {
+  position: absolute; border-radius: 50%; opacity: 0.6;
+  animation: rise 2s ease-in infinite;
+}
+@keyframes rise { 0%{transform:translateY(0);opacity:0.6} 100%{transform:translateY(-80px);opacity:0} }
+.ph-display {
+  position: absolute; top: 16px; right: 16px;
+  font-family: 'Space Mono', monospace; font-size: 11px; color: var(--text-dim);
+}
+.ph-value { font-family: 'Bebas Neue', sans-serif; font-size: 36px; line-height: 1; }
+.smoke-particle {
+  position: absolute; border-radius: 50%; pointer-events: none;
+  animation: smoke-rise 1.5s ease-out forwards;
+}
+@keyframes smoke-rise { 0%{opacity:0.8;transform:translateY(0) scale(1)} 100%{opacity:0;transform:translateY(-60px) scale(3)} }
+.beaker-container.shake { animation: shake 0.5s ease-in-out; }
+@keyframes shake { 0%,100%{transform:translateX(0)} 20%{transform:translateX(-8px)} 40%{transform:translateX(8px)} 60%{transform:translateX(-6px)} 80%{transform:translateX(6px)} }
+
+/* Reaction Log */
+.reaction-log { background: var(--bg); border: 1px solid var(--border); padding: 14px; height: 110px; overflow-y: auto; }
+.reaction-log::-webkit-scrollbar { width: 4px; }
+.reaction-log::-webkit-scrollbar-track { background: transparent; }
+.reaction-log::-webkit-scrollbar-thumb { background: var(--border2); }
+.log-entry { font-family: 'Space Mono', monospace; font-size: 10px; color: var(--text-dim); margin-bottom: 4px; }
+.log-entry.success { color: var(--neon-green); }
+.log-entry.error { color: var(--neon-red); }
+.log-entry.info { color: var(--neon-blue); }
+.log-time { color: var(--text-dim); margin-right: 8px; }
+
+/* Status Panel Kimia */
+.status-panel { grid-column: 3; display: flex; flex-direction: column; gap: 12px; }
+.ph-meter-card { padding: 16px; }
+.ph-scale { position: relative; height: 180px; display: flex; flex-direction: column; }
+.ph-bar-track { flex: 1; width: 24px; border-radius: 12px; background: linear-gradient(to bottom, #ff3060, #ff7a00, #ffe600, #00ff88, #00c8ff, #b44aff); position: relative; margin: 0 auto; box-shadow: 0 0 20px rgba(0,200,255,0.2); }
+.ph-indicator { position: absolute; left: -16px; width: 56px; height: 3px; background: white; box-shadow: 0 0 8px white; transition: top 0.8s cubic-bezier(.4,0,.2,1); border-radius: 2px; }
+.ph-labels { position: absolute; right: -32px; top: 0; bottom: 0; display: flex; flex-direction: column; justify-content: space-between; font-family: 'Space Mono', monospace; font-size: 9px; color: var(--text-dim); }
+.volume-bar { height: 8px; background: var(--border); border-radius: 4px; overflow: hidden; margin-top: 8px; }
+.volume-fill { height: 100%; background: linear-gradient(90deg, var(--neon-blue), var(--neon-green)); border-radius: 4px; transition: width 0.8s; }
+.stat-label { font-family: 'Space Mono', monospace; font-size: 9px; color: var(--text-dim); letter-spacing: 2px; text-transform: uppercase; margin-bottom: 4px; }
+.stat-value { font-family: 'Bebas Neue', sans-serif; font-size: 20px; }
+.reset-btn, .activate-btn {
+  width: 100%; padding: 12px; font-family: 'Space Mono', monospace; font-size: 11px; letter-spacing: 2px;
+  border: 1px solid; cursor: none; background: none; text-transform: uppercase; transition: all 0.2s;
+}
+.activate-btn { border-color: var(--neon-green); color: var(--neon-green); }
+.activate-btn:hover { background: rgba(0,255,136,0.1); box-shadow: var(--glow-g); }
+.reset-btn { border-color: var(--border2); color: var(--text-dim); margin-top: 4px; }
+.reset-btn:hover { border-color: var(--neon-red); color: var(--neon-red); }
+
+/* ──────────────────────────────────────────
+   LAB 2: FISIKA
+────────────────────────────────────────── */
+#lab-phys { grid-template-columns: 220px 1fr 280px; grid-template-rows: auto 1fr; gap: 16px; }
+.circuit-components { grid-column: 1; }
+.component-block {
+  display: flex; align-items: center; gap: 12px; padding: 12px;
+  border: 1px solid var(--border); background: var(--bg); margin-bottom: 8px;
+  cursor: grab; transition: all 0.2s; user-select: none;
+}
+.component-block:hover { border-color: var(--neon-blue); background: rgba(0,200,255,0.05); transform: translateX(4px); }
+.component-block:active { cursor: grabbing; }
+.component-icon { font-size: 20px; }
+.component-name { font-family: 'Space Mono', monospace; font-size: 11px; color: var(--text-bright); }
+.component-spec { font-size: 9px; color: var(--neon-blue); font-family: 'Space Mono', monospace; }
+.component-badge { font-family: 'Space Mono', monospace; font-size: 9px; padding: 2px 6px; border: 1px solid var(--border); color: var(--text-dim); margin-left: auto; }
+
+.circuit-grid-area { grid-column: 2; display: flex; flex-direction: column; gap: 12px; }
+.circuit-canvas-wrap {
+  flex: 1; background: var(--bg); border: 1px solid var(--border); position: relative; min-height: 300px;
+  display: grid; grid-template-columns: repeat(6, 1fr); grid-template-rows: repeat(4, 1fr); gap: 2px; padding: 12px;
+}
+.circuit-cell {
+  border: 1px dashed rgba(0,200,255,0.1); display: flex; align-items: center; justify-content: center;
+  border-radius: 4px; transition: all 0.2s; position: relative; min-height: 60px;
+  font-size: 24px;
+}
+.circuit-cell.drag-over { border-color: var(--neon-blue); background: rgba(0,200,255,0.08); box-shadow: inset 0 0 12px rgba(0,200,255,0.1); }
+.circuit-cell.has-component { border-color: var(--border2); background: rgba(255,255,255,0.02); }
+.circuit-cell .cell-label { position: absolute; bottom: 2px; right: 4px; font-family: 'Space Mono', monospace; font-size: 8px; color: var(--text-dim); }
+.circuit-cell .remove-cell { position: absolute; top: 2px; right: 2px; font-size: 10px; cursor: none; opacity: 0; transition: opacity 0.2s; background: none; border: none; color: var(--neon-red); }
+.circuit-cell:hover .remove-cell { opacity: 1; }
+.wire-layer { position: absolute; inset: 0; pointer-events: none; }
+
+.ohm-panel { background: var(--bg); border: 1px solid var(--border); padding: 14px; }
+.ohm-formula { font-family: 'Space Mono', monospace; font-size: 11px; color: var(--text-dim); margin-bottom: 10px; text-align: center; }
+.ohm-formula span { color: var(--neon-yellow); font-weight: 700; }
+.ohm-values { display: grid; grid-template-columns: repeat(3, 1fr); gap: 10px; }
+.ohm-val-box { text-align: center; background: var(--panel); border: 1px solid var(--border); padding: 10px 6px; }
+.ohm-val-num { font-family: 'Bebas Neue', sans-serif; font-size: 22px; }
+.ohm-val-unit { font-family: 'Space Mono', monospace; font-size: 9px; color: var(--text-dim); }
+
+.phys-status { grid-column: 3; display: flex; flex-direction: column; gap: 12px; }
+.oscilloscope {
+  background: #020d04; border: 1px solid var(--border); padding: 12px;
+  font-family: 'Space Mono', monospace;
+}
+.osc-screen {
+  width: 100%; height: 140px; background: #010a03; border: 1px solid #1a3020; position: relative; overflow: hidden;
+}
+.osc-grid-line { position: absolute; background: rgba(0,255,136,0.1); }
+.osc-wave { position: absolute; bottom: 0; left: 0; width: 200%; height: 100%; }
+.osc-label { font-size: 9px; color: #006020; margin-top: 6px; letter-spacing: 2px; }
+.lamp-display {
+  background: var(--bg); border: 1px solid var(--border); padding: 20px; text-align: center;
+}
+.lamp-icon { font-size: 48px; transition: all 0.5s; }
+.lamp-icon.on { filter: drop-shadow(0 0 20px #ffe600) drop-shadow(0 0 40px #ffe60080); animation: flicker 0.1s infinite; }
+@keyframes flicker { 0%,100%{opacity:1} 50%{opacity:0.92} }
+.lamp-icon.overload { animation: overload-shake 0.1s infinite; }
+@keyframes overload-shake { 0%,100%{transform:rotate(-3deg)} 50%{transform:rotate(3deg)} }
+.lamp-status { font-family: 'Space Mono', monospace; font-size: 10px; letter-spacing: 2px; margin-top: 8px; }
+.circuit-switch-btn {
+  width: 100%; padding: 14px; font-family: 'Space Mono', monospace; font-size: 12px; letter-spacing: 3px;
+  background: none; border: 1px solid var(--neon-blue); color: var(--neon-blue); cursor: none; transition: all 0.2s;
+}
+.circuit-switch-btn:hover { background: rgba(0,200,255,0.1); box-shadow: var(--glow-b); }
+.circuit-switch-btn.on { border-color: var(--neon-green); color: var(--neon-green); background: rgba(0,255,136,0.08); }
+
+/* ──────────────────────────────────────────
+   LAB 3: BIOLOGI
+────────────────────────────────────────── */
+#lab-bio { grid-template-columns: 1fr 300px 260px; grid-template-rows: auto 1fr; gap: 16px; }
+.anatomy-area { grid-column: 1; display: flex; flex-direction: column; gap: 12px; }
+.body-canvas-wrap {
+  flex: 1; background: var(--bg); border: 1px solid var(--border); position: relative;
+  display: flex; align-items: center; justify-content: center; min-height: 380px; overflow: hidden;
+}
+.body-silhouette { position: relative; width: 200px; height: 340px; }
+.body-outline {
+  width: 100%; height: 100%;
+  background: rgba(0,200,255,0.04);
+  border: 1px solid rgba(0,200,255,0.15);
+  border-radius: 60px 60px 30px 30px;
+  position: relative;
+}
+/* Head */
+.body-head {
+  width: 70px; height: 70px; border-radius: 50%;
+  border: 1px solid rgba(0,200,255,0.15);
+  background: rgba(0,200,255,0.04);
+  position: absolute; top: -80px; left: 50%; transform: translateX(-50%);
+}
+/* Drop zones */
+.drop-zone {
+  position: absolute; border-radius: 50%; display: flex; align-items: center; justify-content: center;
+  font-size: 24px; transition: all 0.3s; border: 2px dashed rgba(0,200,255,0.2);
+  background: rgba(0,200,255,0.03);
+}
+.drop-zone.active { border-color: var(--neon-blue); background: rgba(0,200,255,0.08); }
+.drop-zone.correct { border-color: var(--neon-green); background: rgba(0,255,136,0.1); box-shadow: var(--glow-g); }
+.drop-zone.wrong { border-color: var(--neon-red); animation: bounce-back 0.5s ease; }
+.drop-zone.filled { border-color: var(--neon-green); background: rgba(0,255,136,0.08); }
+@keyframes bounce-back { 0%{transform:scale(1)} 30%{transform:scale(1.3)} 60%{transform:scale(0.9)} 100%{transform:scale(1)} }
+#dz-heart { width: 60px; height: 60px; top: 90px; left: 50%; transform: translateX(-60%); }
+#dz-lung-l { width: 50px; height: 55px; top: 90px; left: 10px; border-radius: 30px 10px 10px 30px; }
+#dz-lung-r { width: 50px; height: 55px; top: 90px; right: 10px; border-radius: 10px 30px 30px 10px; }
+#dz-stomach { width: 60px; height: 50px; top: 170px; left: 50%; transform: translateX(-50%); border-radius: 20px; }
+#dz-brain { width: 60px; height: 50px; top: -72px; left: 50%; transform: translateX(-50%); border-radius: 50%; }
+
+/* Organ draggables */
+.organs-tray {
+  background: var(--bg); border: 1px solid var(--border); padding: 14px;
+  display: flex; gap: 10px; flex-wrap: wrap; justify-content: center;
+}
+.organ-item {
+  width: 70px; height: 70px; border: 1px solid var(--border2); background: var(--panel);
+  display: flex; flex-direction: column; align-items: center; justify-content: center;
+  cursor: grab; border-radius: 8px; transition: all 0.2s; user-select: none;
+}
+.organ-item:hover { border-color: var(--neon-blue); transform: scale(1.05); box-shadow: var(--glow-b); }
+.organ-item:active { cursor: grabbing; transform: scale(0.95); }
+.organ-item.placed { opacity: 0.3; pointer-events: none; }
+.organ-emoji { font-size: 28px; }
+.organ-label { font-family: 'Space Mono', monospace; font-size: 8px; color: var(--text-dim); margin-top: 4px; }
+
+/* Diagnosis Panel */
+.diagnosis-panel { grid-column: 2; display: flex; flex-direction: column; gap: 12px; }
+.patient-card { background: var(--bg); border: 1px solid var(--border); padding: 16px; }
+.patient-avatar { font-size: 40px; text-align: center; margin-bottom: 10px; }
+.patient-name { font-family: 'Bebas Neue', sans-serif; font-size: 16px; letter-spacing: 2px; text-align: center; color: var(--text-bright); }
+.patient-age { font-family: 'Space Mono', monospace; font-size: 9px; color: var(--text-dim); text-align: center; margin-bottom: 14px; }
+.vital-row { display: flex; justify-content: space-between; align-items: center; padding: 6px 0; border-bottom: 1px solid var(--border); }
+.vital-name { font-family: 'Space Mono', monospace; font-size: 9px; color: var(--text-dim); }
+.vital-val { font-family: 'Space Mono', monospace; font-size: 11px; }
+.vital-val.normal { color: var(--neon-green); }
+.vital-val.abnormal { color: var(--neon-red); animation: pulse 1s infinite; }
+
+.observation-log { background: var(--bg); border: 1px solid var(--border); padding: 14px; flex: 1; }
+.complaint-item {
+  padding: 10px; margin-bottom: 8px; border: 1px solid var(--border); background: var(--panel);
+  display: flex; align-items: center; gap: 10px; cursor: none;
+  transition: all 0.2s;
+}
+.complaint-item:hover { border-color: var(--neon-purple); background: rgba(180,74,255,0.05); }
+.complaint-item.diagnosed { border-color: var(--neon-green); background: rgba(0,255,136,0.05); }
+.complaint-item.active-complaint { border-color: var(--neon-yellow); background: rgba(255,230,0,0.05); animation: pulse 1s infinite; }
+.complaint-icon { font-size: 18px; }
+.complaint-text { font-family: 'Space Mono', monospace; font-size: 10px; color: var(--text); flex: 1; }
+.complaint-status { font-size: 12px; }
+.scan-btn {
+  width: 100%; padding: 12px; font-family: 'Space Mono', monospace; font-size: 11px; letter-spacing: 2px;
+  border: 1px solid var(--neon-purple); color: var(--neon-purple); background: none; cursor: none; transition: all 0.2s;
+}
+.scan-btn:hover { background: rgba(180,74,255,0.1); box-shadow: var(--glow-p); }
+
+/* Bio Status */
+.bio-status { grid-column: 3; display: flex; flex-direction: column; gap: 12px; }
+.progress-ring-wrap { display: flex; align-items: center; justify-content: center; padding: 16px; }
+.mistakes-counter { display: flex; gap: 8px; justify-content: center; padding: 12px 16px; flex-wrap: wrap; }
+.mistake-dot { width: 16px; height: 16px; border-radius: 50%; border: 2px solid var(--border2); transition: all 0.3s; }
+.mistake-dot.used { background: var(--neon-red); border-color: var(--neon-red); box-shadow: var(--glow-r); }
+
+/* ──────────────────────────────────────────
+   MODALS
+────────────────────────────────────────── */
+.modal-overlay {
+  position: fixed; inset: 0; z-index: 1000;
+  background: rgba(0,0,0,0.85);
+  display: flex; align-items: center; justify-content: center;
+  opacity: 0; pointer-events: none; transition: opacity 0.4s;
+  backdrop-filter: blur(4px);
+}
+.modal-overlay.show { opacity: 1; pointer-events: all; }
+.challenge-success-modal, .challenge-failed-modal {
+  background: var(--panel); border: 1px solid var(--border);
+  padding: 40px; text-align: center; max-width: 440px; width: 90%;
+  position: relative; animation: modal-in 0.5s cubic-bezier(.17,.67,.3,1.33);
+}
+@keyframes modal-in { from{transform:scale(0.7) translateY(30px)} to{transform:scale(1) translateY(0)} }
+.challenge-success-modal { border-color: var(--neon-green); box-shadow: 0 0 60px rgba(0,255,136,0.2); }
+.challenge-failed-modal { border-color: var(--neon-red); box-shadow: 0 0 60px rgba(255,48,96,0.2); }
+.modal-icon { font-size: 56px; margin-bottom: 16px; }
+.modal-title { font-family: 'Bebas Neue', sans-serif; font-size: 36px; letter-spacing: 4px; margin-bottom: 8px; }
+.modal-sub { font-family: 'Space Mono', monospace; font-size: 11px; color: var(--text-dim); margin-bottom: 24px; line-height: 1.8; }
+.badge-award { display: inline-block; padding: 10px 20px; border: 1px solid var(--neon-yellow); font-family: 'Space Mono', monospace; font-size: 12px; color: var(--neon-yellow); text-shadow: 0 0 18px #ffe60060; margin-bottom: 24px; letter-spacing: 2px; }
+.modal-btn {
+  padding: 14px 32px; font-family: 'Space Mono', monospace; font-size: 12px; letter-spacing: 3px;
+  border: 1px solid; cursor: none; background: none; margin: 0 6px; transition: all 0.2s;
+}
+.modal-btn.primary { border-color: var(--neon-green); color: var(--neon-green); }
+.modal-btn.primary:hover { background: rgba(0,255,136,0.1); box-shadow: var(--glow-g); }
+.modal-btn.secondary { border-color: var(--border2); color: var(--text-dim); }
+.modal-btn.secondary:hover { border-color: var(--text); color: var(--text); }
+.modal-btn.danger { border-color: var(--neon-red); color: var(--neon-red); }
+.modal-btn.danger:hover { background: rgba(255,48,96,0.1); box-shadow: var(--glow-r); }
+
+/* Confetti */
+.confetti-piece {
+  position: fixed; width: 8px; height: 8px; pointer-events: none; z-index: 1001;
+  animation: confetti-fall linear forwards;
+}
+@keyframes confetti-fall {
+  0% { transform: translateY(-20px) rotate(0deg); opacity: 1; }
+  100% { transform: translateY(100vh) rotate(720deg); opacity: 0; }
+}
+
+/* ──────────────────────────────────────────
+   SHARED UI
+────────────────────────────────────────── */
+.progress-ring { transform: rotate(-90deg); }
+.progress-ring-circle { transition: stroke-dashoffset 0.8s cubic-bezier(.4,0,.2,1); }
+
+/* Scrollbar */
+::-webkit-scrollbar { width: 4px; height: 4px; }
+::-webkit-scrollbar-track { background: var(--bg); }
+::-webkit-scrollbar-thumb { background: var(--border2); }
+
+/* Scan line animation on active panels */
+.active-scan::after {
+  content: '';
+  position: absolute; left: 0; right: 0; height: 2px;
+  background: linear-gradient(90deg, transparent, var(--neon-blue), transparent);
+  animation: scan 3s linear infinite;
+  pointer-events: none; top: 0;
+}
+@keyframes scan { 0%{top:0;opacity:1} 100%{top:100%;opacity:0} }
+
+/* Toast notifications */
+.toast {
+  position: fixed; bottom: 24px; right: 24px; z-index: 500;
+  background: var(--panel); border: 1px solid var(--border);
+  padding: 12px 20px; font-family: 'Space Mono', monospace; font-size: 11px;
+  transform: translateX(120%); transition: transform 0.4s cubic-bezier(.17,.67,.3,1.33);
+  max-width: 300px;
+}
+.toast.show { transform: translateX(0); }
+.toast.success { border-color: var(--neon-green); color: var(--neon-green); }
+.toast.error { border-color: var(--neon-red); color: var(--neon-red); }
+.toast.info { border-color: var(--neon-blue); color: var(--neon-blue); }
+</style>
+</head>
+<body>
+
+<div id="cursor"></div>
+<div id="cursorDot"></div>
+
+<!-- MODAL: SUCCESS -->
+<div class="modal-overlay" id="successModal">
+  <div class="challenge-success-modal">
+    <div class="modal-icon">🏆</div>
+    <div class="modal-title" id="successTitle">MISSION COMPLETE</div>
+    <div class="modal-sub" id="successSub">Selamat! Kamu telah berhasil menyelesaikan misi.</div>
+    <div class="badge-award" id="badgeAward">⭐ BADGE EARNED</div>
+    <br>
+    <button class="modal-btn primary" onclick="closeModal('successModal')">BACK TO LAB</button>
+    <button class="modal-btn secondary" onclick="closeModal('successModal')">DASHBOARD</button>
+  </div>
+</div>
+
+<!-- MODAL: FAILED -->
+<div class="modal-overlay" id="failedModal">
+  <div class="challenge-failed-modal">
+    <div class="modal-icon">💀</div>
+    <div class="modal-title" id="failedTitle">MISSION FAILED</div>
+    <div class="modal-sub" id="failedSub">Eksperimen gagal. Analisa ulang dan coba lagi.</div>
+    <br>
+    <button class="modal-btn danger" onclick="closeModal('failedModal'); resetCurrentLab()">RETRY MISSION</button>
+    <button class="modal-btn secondary" onclick="closeModal('failedModal')">BACK TO MENU</button>
+  </div>
+</div>
+
+<!-- TOAST -->
+<div class="toast" id="toast"></div>
+
+<!-- HEADER -->
+<header>
+  <div>
+    <div class="logo-text">EKSPERIKA</div>
+    <div class="logo-sub">Virtual Science Lab — Lab OS v3.0</div>
+  </div>
+  <div class="header-spacer"></div>
+  <div class="mode-badge">⚡ CHALLENGE MODE ACTIVE</div>
+</header>
+
+<!-- TAB NAV -->
+<div class="tab-nav">
+  <button class="tab-btn active" data-num="01" data-tab="chem" onclick="switchTab('chem')">KIMIA — NETRALISASI LIMBAH</button>
+  <button class="tab-btn" data-num="02" data-tab="phys" onclick="switchTab('phys')">FISIKA — SHORT CIRCUIT SOLVER</button>
+  <button class="tab-btn" data-num="03" data-tab="bio" onclick="switchTab('bio')">BIOLOGI — ANATOMY DETECTIVE</button>
+</div>
+
+<main>
+
+<!-- ══════════════════════════════════
+     LAB 1: KIMIA
+════════════════════════════════════ -->
+<div class="lab-panel active" id="lab-chem">
+
+  <!-- Mission Header -->
+  <div class="mission-header">
+    <div class="mission-icon">⚗️</div>
+    <div>
+      <div class="mission-title">THE CHEMICAL MASTERMIND — MISI NETRALISASI LIMBAH</div>
+      <div class="mission-desc">// OBJECTIVE: Netralkan larutan limbah hingga pH = 7.0 sebelum waktu habis</div>
+    </div>
+    <div class="mission-spacer"></div>
+    <div>
+      <div style="font-family:'Space Mono',monospace;font-size:9px;color:var(--text-dim);letter-spacing:2px;margin-bottom:4px;">TIME REMAINING</div>
+      <div class="mission-timer" id="chem-timer">03:00</div>
+    </div>
+  </div>
+
+  <!-- Compounds Panel -->
+  <div class="card compounds-panel">
+    <div class="card-title"><div class="dot"></div>SENYAWA TERSEDIA</div>
+
+    <div class="compound-item" id="comp-hcl" onclick="selectCompound('HCl')">
+      <div class="compound-icon">🧪</div>
+      <div class="compound-info">
+        <div class="compound-name">HCl</div>
+        <div class="compound-ph">Asam Kuat — pH <span>1.0</span></div>
+      </div>
+      <button class="add-btn" onclick="addCompound('HCl',1.0,'acid');event.stopPropagation()">+ ADD</button>
+    </div>
+
+    <div class="compound-item" id="comp-h2so4" onclick="selectCompound('H₂SO₄')">
+      <div class="compound-icon">🔴</div>
+      <div class="compound-info">
+        <div class="compound-name">H₂SO₄</div>
+        <div class="compound-ph">Asam Kuat — pH <span>0.5</span></div>
+      </div>
+      <button class="add-btn" onclick="addCompound('H₂SO₄',0.5,'acid');event.stopPropagation()">+ ADD</button>
+    </div>
+
+    <div class="compound-item" id="comp-naoh" onclick="selectCompound('NaOH')">
+      <div class="compound-icon">🔵</div>
+      <div class="compound-info">
+        <div class="compound-name">NaOH</div>
+        <div class="compound-ph">Basa Kuat — pH <span>13.0</span></div>
+      </div>
+      <button class="add-btn" onclick="addCompound('NaOH',13.0,'base');event.stopPropagation()">+ ADD</button>
+    </div>
+
+    <div class="compound-item" id="comp-nh3" onclick="selectCompound('NH₃')">
+      <div class="compound-icon">🟡</div>
+      <div class="compound-info">
+        <div class="compound-name">NH₃</div>
+        <div class="compound-ph">Basa Lemah — pH <span>11.0</span></div>
+      </div>
+      <button class="add-btn" onclick="addCompound('NH₃',11.0,'base');event.stopPropagation()">+ ADD</button>
+    </div>
+
+    <div class="compound-item" id="comp-ch3cooh" onclick="selectCompound('CH₃COOH')">
+      <div class="compound-icon">🟢</div>
+      <div class="compound-info">
+        <div class="compound-name">CH₃COOH</div>
+        <div class="compound-ph">Asam Lemah — pH <span>3.0</span></div>
+      </div>
+      <button class="add-btn" onclick="addCompound('CH₃COOH',3.0,'acid');event.stopPropagation()">+ ADD</button>
+    </div>
+
+    <div class="compound-item" id="comp-h2o" onclick="selectCompound('H₂O')">
+      <div class="compound-icon">💧</div>
+      <div class="compound-info">
+        <div class="compound-name">H₂O (Aquades)</div>
+        <div class="compound-ph">Netral — pH <span>7.0</span></div>
+      </div>
+      <button class="add-btn" onclick="addCompound('H₂O',7.0,'neutral');event.stopPropagation()">+ ADD</button>
+    </div>
+  </div>
+
+  <!-- Reaction Chamber -->
+  <div class="reaction-chamber">
+    <div class="card beaker-area active-scan">
+      <div class="ph-display">
+        <div style="font-family:'Space Mono',monospace;font-size:9px;color:var(--text-dim);margin-bottom:4px;">CURRENT pH</div>
+        <div class="ph-value" id="ph-display-val" style="color:var(--neon-red)">1.0</div>
+        <div style="font-family:'Space Mono',monospace;font-size:9px;color:var(--text-dim);margin-top:6px;">COMPOUND</div>
+        <div style="font-family:'Space Mono',monospace;font-size:10px;color:var(--neon-blue);margin-top:2px;" id="dominant-compound">HCl</div>
+        <div style="font-family:'Space Mono',monospace;font-size:9px;color:var(--text-dim);margin-top:6px;">VOLUME</div>
+        <div style="font-family:'Space Mono',monospace;font-size:10px;color:var(--neon-blue);margin-top:2px;" id="vol-display">50 mL</div>
+      </div>
+
+      <div class="beaker-container" id="beakerContainer">
+        <!-- Beaker SVG frame -->
+        <svg class="beaker-svg-el" viewBox="0 0 180 240" fill="none" xmlns="http://www.w3.org/2000/svg">
+          <path d="M30 10 L30 200 Q30 226 56 226 L124 226 Q150 226 150 200 L150 10" stroke="#1a3550" stroke-width="2" fill="none"/>
+          <path d="M20 10 L160 10" stroke="#1a3550" stroke-width="2"/>
+          <path d="M30 50 L20 50" stroke="#1a3550" stroke-width="1.5"/>
+          <path d="M30 90 L20 90" stroke="#1a3550" stroke-width="1.5"/>
+          <path d="M30 130 L20 130" stroke="#1a3550" stroke-width="1.5"/>
+          <path d="M30 170 L20 170" stroke="#1a3550" stroke-width="1.5"/>
+          <text x="12" y="54" fill="#1a3550" font-size="9" font-family="monospace">200</text>
+          <text x="12" y="94" fill="#1a3550" font-size="9" font-family="monospace">150</text>
+          <text x="12" y="134" fill="#1a3550" font-size="9" font-family="monospace">100</text>
+          <text x="12" y="174" fill="#1a3550" font-size="9" font-family="monospace">50</text>
+          <path d="M150 10 L160 10 L160 26 L152 30" stroke="#1a3550" stroke-width="1.5" fill="none"/>
+        </svg>
+        <!-- Liquid -->
+        <div class="liquid-fill" id="liquidFill" style="height:25%;background:rgba(255,48,96,0.6);">
+          <div class="liquid-wave" style="background:rgba(255,48,96,0.4);"></div>
+        </div>
+      </div>
+    </div>
+
+    <div class="card reaction-log" id="reactionLog">
+      <div class="log-entry info"><span class="log-time">[00:00]</span> System initialized. Limbah asam terdeteksi (HCl). pH = 1.0</div>
+      <div class="log-entry info"><span class="log-time">[00:01]</span> Target: pH 7.0 ± 0.5 | Volume target: 200mL</div>
+    </div>
+  </div>
+
+  <!-- Status Panel -->
+  <div class="status-panel">
+    <div class="card ph-meter-card">
+      <div class="card-title"><div class="dot"></div>pH METER</div>
+      <div class="ph-scale">
+        <div class="ph-bar-track">
+          <div class="ph-indicator" id="phIndicator" style="top:91%"></div>
+          <div class="ph-labels">
+            <span>0</span><span>2</span><span>4</span><span>6</span><span>7</span><span>8</span><span>10</span><span>12</span><span>14</span>
+          </div>
+        </div>
+      </div>
+      <div style="margin-top:14px;">
+        <div class="stat-label">VOLUME PROGRESS</div>
+        <div class="volume-bar"><div class="volume-fill" id="volumeFill" style="width:25%"></div></div>
+        <div style="display:flex;justify-content:space-between;margin-top:4px;">
+          <span style="font-family:'Space Mono',monospace;font-size:9px;color:var(--text-dim);" id="vol-label">50 mL</span>
+          <span style="font-family:'Space Mono',monospace;font-size:9px;color:var(--text-dim);">200 mL</span>
+        </div>
+      </div>
+    </div>
+
+    <div class="card" style="padding:16px;">
+      <div class="card-title"><div class="dot"></div>STATUS</div>
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-bottom:12px;">
+        <div style="background:var(--bg);border:1px solid var(--border);padding:10px;text-align:center;">
+          <div class="stat-label">COMPOUNDS</div>
+          <div class="stat-value" id="compound-count" style="color:var(--neon-blue);">1</div>
+        </div>
+        <div style="background:var(--bg);border:1px solid var(--border);padding:10px;text-align:center;">
+          <div class="stat-label">REACTIONS</div>
+          <div class="stat-value" id="reaction-count" style="color:var(--neon-green);">0</div>
+        </div>
+      </div>
+      <button class="activate-btn" onclick="activateMix()">⚡ MIX & REACT</button>
+      <button class="reset-btn" onclick="resetChem()">↺ RESET EXPERIMENT</button>
+    </div>
+  </div>
+
+</div><!-- end lab-chem -->
+
+<!-- ══════════════════════════════════
+     LAB 2: FISIKA
+════════════════════════════════════ -->
+<div class="lab-panel" id="lab-phys">
+
+  <div class="mission-header">
+    <div class="mission-icon">⚡</div>
+    <div>
+      <div class="mission-title">SHORT CIRCUIT SOLVER — POWER THE CITY</div>
+      <div class="mission-desc">// OBJECTIVE: Susun rangkaian agar arus I berada di rentang 1.5A – 2.0A</div>
+    </div>
+    <div class="mission-spacer"></div>
+    <div>
+      <div style="font-family:'Space Mono',monospace;font-size:9px;color:var(--text-dim);letter-spacing:2px;margin-bottom:4px;">TIME REMAINING</div>
+      <div class="mission-timer" id="phys-timer">05:00</div>
+    </div>
+  </div>
+
+  <!-- Components Tray -->
+  <div class="card circuit-components">
+    <div class="card-title"><div class="dot" style="background:var(--neon-yellow);box-shadow:0 0 8px var(--neon-yellow);"></div>KOMPONEN</div>
+
+    <div class="component-block" draggable="true" data-type="battery" data-voltage="9" ondragstart="dragComponent(event)">
+      <div class="component-icon">🔋</div>
+      <div>
+        <div class="component-name">Battery</div>
+        <div class="component-spec">V = 9V</div>
+      </div>
+      <div class="component-badge">DC</div>
+    </div>
+
+    <div class="component-block" draggable="true" data-type="resistor" data-resistance="5" ondragstart="dragComponent(event)">
+      <div class="component-icon">⬛</div>
+      <div>
+        <div class="component-name">Resistor 5Ω</div>
+        <div class="component-spec">R = 5Ω</div>
+      </div>
+      <div class="component-badge">5Ω</div>
+    </div>
+
+    <div class="component-block" draggable="true" data-type="resistor" data-resistance="3" ondragstart="dragComponent(event)">
+      <div class="component-icon">⬛</div>
+      <div>
+        <div class="component-name">Resistor 3Ω</div>
+        <div class="component-spec">R = 3Ω</div>
+      </div>
+      <div class="component-badge">3Ω</div>
+    </div>
+
+    <div class="component-block" draggable="true" data-type="resistor" data-resistance="1" ondragstart="dragComponent(event)">
+      <div class="component-icon">⬛</div>
+      <div>
+        <div class="component-name">Resistor 1Ω</div>
+        <div class="component-spec">R = 1Ω</div>
+      </div>
+      <div class="component-badge">1Ω</div>
+    </div>
+
+    <div class="component-block" draggable="true" data-type="lamp" data-resistance="2" ondragstart="dragComponent(event)">
+      <div class="component-icon">💡</div>
+      <div>
+        <div class="component-name">Lamp LED</div>
+        <div class="component-spec">Tol: 1.5–2.0A</div>
+      </div>
+      <div class="component-badge">LED</div>
+    </div>
+
+    <div class="component-block" draggable="true" data-type="switch" ondragstart="dragComponent(event)">
+      <div class="component-icon">🔘</div>
+      <div>
+        <div class="component-name">Switch</div>
+        <div class="component-spec">On / Off</div>
+      </div>
+      <div class="component-badge">SW</div>
+    </div>
+
+    <div style="margin-top:12px;padding:10px;background:var(--bg);border:1px solid var(--border);font-family:'Space Mono',monospace;font-size:9px;color:var(--text-dim);line-height:1.8;">
+      💡 TIP: Seret komponen ke grid.<br>
+      Susun: Battery → Resistor(s) → Lamp<br>
+      Target: V/R_total = 1.5A – 2.0A
+    </div>
+  </div>
+
+  <!-- Circuit Grid -->
+  <div class="circuit-grid-area">
+    <div class="card" style="padding:12px 16px 8px;display:flex;align-items:center;gap:12px;">
+      <div style="font-family:'Space Mono',monospace;font-size:10px;color:var(--text-dim);">CIRCUIT GRID — Drag & Drop komponen di sini</div>
+    </div>
+    <div class="card circuit-canvas-wrap" id="circuitGrid">
+      <!-- 6x4 = 24 cells generated by JS -->
+    </div>
+
+    <div class="card ohm-panel">
+      <div class="ohm-formula">V = I × R &nbsp;|&nbsp; <span id="ohm-equation">9V = ? × ?Ω</span></div>
+      <div class="ohm-values">
+        <div class="ohm-val-box">
+          <div class="ohm-val-num" id="volt-val" style="color:var(--neon-yellow)">9</div>
+          <div class="ohm-val-unit">VOLTAGE (V)</div>
+        </div>
+        <div class="ohm-val-box">
+          <div class="ohm-val-num" id="resist-val" style="color:var(--neon-orange)">—</div>
+          <div class="ohm-val-unit">RESISTANCE (Ω)</div>
+        </div>
+        <div class="ohm-val-box">
+          <div class="ohm-val-num" id="current-val" style="color:var(--neon-blue)">—</div>
+          <div class="ohm-val-unit">CURRENT (A)</div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Physics Status -->
+  <div class="phys-status">
+    <div class="card oscilloscope">
+      <div class="card-title"><div class="dot" style="background:var(--neon-green);box-shadow:0 0 8px var(--neon-green);"></div>OSCILLOSCOPE</div>
+      <div class="osc-screen" id="oscScreen">
+        <!-- H grid lines -->
+        <div class="osc-grid-line" style="width:100%;height:1px;top:25%;left:0"></div>
+        <div class="osc-grid-line" style="width:100%;height:1px;top:50%;left:0"></div>
+        <div class="osc-grid-line" style="width:100%;height:1px;top:75%;left:0"></div>
+        <!-- V grid lines -->
+        <div class="osc-grid-line" style="height:100%;width:1px;left:25%;top:0"></div>
+        <div class="osc-grid-line" style="height:100%;width:1px;left:50%;top:0"></div>
+        <div class="osc-grid-line" style="height:100%;width:1px;left:75%;top:0"></div>
+        <svg id="oscWave" style="position:absolute;inset:0;width:100%;height:100%"></svg>
+      </div>
+      <div class="osc-label" id="oscStatus">// STANDBY — Activate circuit to see waveform</div>
+    </div>
+
+    <div class="card lamp-display">
+      <div class="card-title"><div class="dot" style="background:var(--neon-yellow);box-shadow:0 0 8px var(--neon-yellow);"></div>LAMP STATUS</div>
+      <div class="lamp-icon" id="lampIcon">💡</div>
+      <div class="lamp-status" id="lampStatus" style="color:var(--text-dim)">CIRCUIT INACTIVE</div>
+      <div style="margin-top:8px;font-family:'Space Mono',monospace;font-size:9px;color:var(--text-dim);">Tolerance: 1.5A – 2.0A</div>
+    </div>
+
+    <button class="circuit-switch-btn" id="circuitSwitch" onclick="toggleCircuit()">⚡ ACTIVATE CIRCUIT</button>
+    <button class="reset-btn" onclick="resetPhys()" style="width:100%;padding:12px;">↺ RESET CIRCUIT</button>
+  </div>
+
+</div><!-- end lab-phys -->
+
+<!-- ══════════════════════════════════
+     LAB 3: BIOLOGI
+════════════════════════════════════ -->
+<div class="lab-panel" id="lab-bio">
+
+  <div class="mission-header">
+    <div class="mission-icon">🔬</div>
+    <div>
+      <div class="mission-title">THE ANATOMY DETECTIVE — DIAGNOSIS PASIEN VIRTUAL</div>
+      <div class="mission-desc">// OBJECTIVE: Pasang semua organ dengan benar & diagnosis 3 keluhan pasien</div>
+    </div>
+    <div class="mission-spacer"></div>
+    <div>
+      <div style="font-family:'Space Mono',monospace;font-size:9px;color:var(--text-dim);letter-spacing:2px;margin-bottom:4px;">TIME REMAINING</div>
+      <div class="mission-timer" id="bio-timer">04:00</div>
+    </div>
+  </div>
+
+  <!-- Anatomy Area -->
+  <div class="anatomy-area">
+    <div class="card body-canvas-wrap active-scan">
+      <div style="position:absolute;top:16px;left:16px;font-family:'Space Mono',monospace;font-size:9px;color:var(--text-dim);letter-spacing:2px;">ANATOMY VIEW — PATIENT #001</div>
+
+      <div class="body-silhouette" id="bodySilhouette">
+        <div class="body-head"></div>
+        <div class="body-outline">
+          <div class="drop-zone" id="dz-brain" ondragover="allowDrop(event)" ondrop="dropOrgan(event,'brain')">🧠</div>
+          <div class="drop-zone" id="dz-lung-l" ondragover="allowDrop(event)" ondrop="dropOrgan(event,'lung-l')">🫁</div>
+          <div class="drop-zone" id="dz-lung-r" ondragover="allowDrop(event)" ondrop="dropOrgan(event,'lung-r')">🫁</div>
+          <div class="drop-zone" id="dz-heart" ondragover="allowDrop(event)" ondrop="dropOrgan(event,'heart')">❤️</div>
+          <div class="drop-zone" id="dz-stomach" ondragover="allowDrop(event)" ondrop="dropOrgan(event,'stomach')">🫃</div>
+        </div>
+      </div>
+
+      <div style="position:absolute;bottom:16px;right:16px;font-family:'Space Mono',monospace;font-size:9px;color:var(--text-dim);">
+        <div>ORGANS PLACED: <span id="organs-placed" style="color:var(--neon-green)">0</span>/5</div>
+        <div>MISTAKES: <span id="mistake-count" style="color:var(--neon-red)">0</span>/3</div>
+      </div>
+    </div>
+
+    <!-- Organs Tray -->
+    <div class="card organs-tray">
+      <div class="organ-item" id="organ-heart" draggable="true" data-organ="heart" ondragstart="dragOrgan(event)">
+        <div class="organ-emoji">❤️</div>
+        <div class="organ-label">JANTUNG</div>
+      </div>
+      <div class="organ-item" id="organ-lung-l" draggable="true" data-organ="lung-l" ondragstart="dragOrgan(event)">
+        <div class="organ-emoji">🫁</div>
+        <div class="organ-label">PARU-L</div>
+      </div>
+      <div class="organ-item" id="organ-lung-r" draggable="true" data-organ="lung-r" ondragstart="dragOrgan(event)">
+        <div class="organ-emoji">🫁</div>
+        <div class="organ-label">PARU-R</div>
+      </div>
+      <div class="organ-item" id="organ-stomach" draggable="true" data-organ="stomach" ondragstart="dragOrgan(event)">
+        <div class="organ-emoji">🫃</div>
+        <div class="organ-label">LAMBUNG</div>
+      </div>
+      <div class="organ-item" id="organ-brain" draggable="true" data-organ="brain" ondragstart="dragOrgan(event)">
+        <div class="organ-emoji">🧠</div>
+        <div class="organ-label">OTAK</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Diagnosis Panel -->
+  <div class="diagnosis-panel">
+    <div class="card patient-card">
+      <div class="patient-avatar">🧑‍⚕️</div>
+      <div class="patient-name">PASIEN: BUDI SANTOSO</div>
+      <div class="patient-age">USIA: 45 TAHUN | ID: PT-0042</div>
+      <div class="vital-row"><span class="vital-name">HEART RATE</span><span class="vital-val abnormal" id="bio-hr">112 BPM ↑</span></div>
+      <div class="vital-row"><span class="vital-name">O₂ SATURATION</span><span class="vital-val abnormal" id="bio-o2">88% ↓</span></div>
+      <div class="vital-row"><span class="vital-name">BLOOD PRESSURE</span><span class="vital-val normal">128/84 mmHg</span></div>
+      <div class="vital-row"><span class="vital-name">TEMPERATURE</span><span class="vital-val abnormal">38.9°C ↑</span></div>
+      <div class="vital-row"><span class="vital-name">RESPIRATORY</span><span class="vital-val abnormal">26/min ↑</span></div>
+    </div>
+
+    <div class="card observation-log">
+      <div class="card-title"><div class="dot" style="background:var(--neon-purple);box-shadow:0 0 8px var(--neon-purple);"></div>OBSERVATION LOG</div>
+
+      <div class="complaint-item active-complaint" id="complaint-1" data-organ="lung-l" onclick="scanComplaint(1,'lung-l')">
+        <div class="complaint-icon">😮‍💨</div>
+        <div class="complaint-text">"Sesak napas parah, sulit bernapas sejak 2 hari"</div>
+        <div class="complaint-status" id="cs-1">🔍</div>
+      </div>
+      <div class="complaint-item" id="complaint-2" data-organ="heart" onclick="scanComplaint(2,'heart')">
+        <div class="complaint-icon">💓</div>
+        <div class="complaint-text">"Nyeri dada kiri, detak jantung tidak teratur"</div>
+        <div class="complaint-status" id="cs-2">🔍</div>
+      </div>
+      <div class="complaint-item" id="complaint-3" data-organ="stomach" onclick="scanComplaint(3,'stomach')">
+        <div class="complaint-icon">🤢</div>
+        <div class="complaint-text">"Mual parah dan nyeri ulu hati setelah makan"</div>
+        <div class="complaint-status" id="cs-3">🔍</div>
+      </div>
+
+      <button class="scan-btn" onclick="activateScan()">🔬 ACTIVATE SCAN TOOL</button>
+    </div>
+  </div>
+
+  <!-- Bio Status -->
+  <div class="bio-status">
+    <div class="card" style="padding:20px;">
+      <div class="card-title"><div class="dot" style="background:var(--neon-purple);box-shadow:0 0 8px var(--neon-purple);"></div>MISSION PROGRESS</div>
+      <div class="progress-ring-wrap">
+        <svg width="120" height="120" viewBox="0 0 120 120">
+          <circle cx="60" cy="60" r="48" fill="none" stroke="var(--border)" stroke-width="8"/>
+          <circle id="bioProgress" cx="60" cy="60" r="48" fill="none" stroke="var(--neon-purple)"
+            stroke-width="8" stroke-linecap="round"
+            stroke-dasharray="301.6" stroke-dashoffset="301.6"
+            class="progress-ring progress-ring-circle"
+            transform="rotate(-90 60 60)"/>
+          <text x="60" y="56" text-anchor="middle" fill="var(--text-bright)" font-family="'Bebas Neue',sans-serif" font-size="24" id="progressText">0%</text>
+          <text x="60" y="72" text-anchor="middle" fill="var(--text-dim)" font-family="'Space Mono',monospace" font-size="8">COMPLETE</text>
+        </svg>
+      </div>
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px;">
+        <div style="background:var(--bg);border:1px solid var(--border);padding:10px;text-align:center;">
+          <div class="stat-label">ORGANS</div>
+          <div class="stat-value" id="organs-placed2" style="color:var(--neon-purple);">0/5</div>
+        </div>
+        <div style="background:var(--bg);border:1px solid var(--border);padding:10px;text-align:center;">
+          <div class="stat-label">DIAGNOSIS</div>
+          <div class="stat-value" id="diag-count" style="color:var(--neon-green);">0/3</div>
+        </div>
+      </div>
+    </div>
+
+    <div class="card" style="padding:16px;">
+      <div class="card-title"><div class="dot" style="background:var(--neon-red);box-shadow:0 0 8px var(--neon-red);"></div>MISTAKE TRACKER</div>
+      <div class="mistakes-counter">
+        <div class="mistake-dot" id="md-1"></div>
+        <div class="mistake-dot" id="md-2"></div>
+        <div class="mistake-dot" id="md-3"></div>
+      </div>
+      <div style="font-family:'Space Mono',monospace;font-size:9px;color:var(--text-dim);text-align:center;margin-top:8px;">3 MISTAKES = MISSION FAILED</div>
+    </div>
+
+    <div class="card" style="padding:16px;">
+      <div class="card-title"><div class="dot"></div>SCAN LOG</div>
+      <div id="scanLog" style="font-family:'Space Mono',monospace;font-size:9px;color:var(--text-dim);line-height:1.8;max-height:140px;overflow-y:auto;">
+        <div>// Scan tool standby</div>
+        <div>// Select complaint to diagnose</div>
+      </div>
+    </div>
+
+    <button class="reset-btn" onclick="resetBio()" style="width:100%;padding:12px;">↺ RESET EXPERIMENT</button>
+  </div>
+
+</div><!-- end lab-bio -->
+</main>
+
+<script>
+// ══════════════════════════════════════════════
+// CURSOR
+// ══════════════════════════════════════════════
+const cursor = document.getElementById('cursor');
+const cursorDot = document.getElementById('cursorDot');
+let mx = 0, my = 0, cx = 0, cy = 0;
+document.addEventListener('mousemove', e => { mx = e.clientX; my = e.clientY; cursorDot.style.left = mx + 'px'; cursorDot.style.top = my + 'px'; });
+(function animateCursor() { cx += (mx - cx) * 0.15; cy += (my - cy) * 0.15; cursor.style.left = cx + 'px'; cursor.style.top = cy + 'px'; requestAnimationFrame(animateCursor); })();
+
+// ══════════════════════════════════════════════
+// TAB SYSTEM
+// ══════════════════════════════════════════════
+let activeTab = 'chem';
+let timerIntervals = {};
+
+function switchTab(tab) {
+  document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
+  document.querySelectorAll('.lab-panel').forEach(p => p.classList.remove('active'));
+  document.querySelector(`[data-tab="${tab}"]`).classList.add('active');
+  document.getElementById(`lab-${tab === 'chem' ? 'chem' : tab === 'phys' ? 'phys' : 'bio'}`).classList.add('active');
+  activeTab = tab;
+}
+
+// ══════════════════════════════════════════════
+// TOAST
+// ══════════════════════════════════════════════
+function showToast(msg, type = 'info', duration = 3000) {
+  const t = document.getElementById('toast');
+  t.textContent = msg;
+  t.className = `toast ${type} show`;
+  setTimeout(() => t.classList.remove('show'), duration);
+}
+
+// ══════════════════════════════════════════════
+// MODAL
+// ══════════════════════════════════════════════
+function openModal(id, title, sub, badge = null) {
+  document.getElementById(id === 'success' ? 'successTitle' : 'failedTitle').textContent = title;
+  document.getElementById(id === 'success' ? 'successSub' : 'failedSub').textContent = sub;
+  if (badge && id === 'success') document.getElementById('badgeAward').textContent = '⭐ ' + badge;
+  document.getElementById(id + 'Modal').classList.add('show');
+  if (id === 'success') spawnConfetti();
+}
+function closeModal(id) { document.getElementById(id).classList.remove('show'); }
+
+function spawnConfetti() {
+  const colors = ['#00ff88','#00c8ff','#ffe600','#ff3060','#b44aff'];
+  for (let i = 0; i < 60; i++) {
+    const el = document.createElement('div');
+    el.className = 'confetti-piece';
+    el.style.cssText = `left:${Math.random()*100}vw;top:-20px;background:${colors[Math.floor(Math.random()*colors.length)]};
+      width:${6+Math.random()*8}px;height:${6+Math.random()*8}px;
+      animation-duration:${1.5+Math.random()*2}s;animation-delay:${Math.random()*0.5}s;
+      border-radius:${Math.random()>0.5?'50%':'2px'};`;
+    document.body.appendChild(el);
+    setTimeout(() => el.remove(), 3500);
+  }
+}
+
+function resetCurrentLab() {
+  if (activeTab === 'chem') resetChem();
+  else if (activeTab === 'phys') resetPhys();
+  else resetBio();
+}
+
+// ══════════════════════════════════════════════
+// TIMER UTILITY
+// ══════════════════════════════════════════════
+function startTimer(id, seconds, onExpire) {
+  if (timerIntervals[id]) clearInterval(timerIntervals[id]);
+  let remaining = seconds;
+  const el = document.getElementById(id);
+  const update = () => {
+    const m = String(Math.floor(remaining / 60)).padStart(2, '0');
+    const s = String(remaining % 60).padStart(2, '0');
+    el.textContent = `${m}:${s}`;
+    if (remaining <= 30) el.classList.add('danger'); else el.classList.remove('danger');
+    if (remaining <= 0) { clearInterval(timerIntervals[id]); onExpire(); }
+    remaining--;
+  };
+  update();
+  timerIntervals[id] = setInterval(update, 1000);
+}
+function stopTimer(id) { if (timerIntervals[id]) clearInterval(timerIntervals[id]); }
+
+// ══════════════════════════════════════════════
+// LAB 1: KIMIA — STATE MANAGEMENT
+// ══════════════════════════════════════════════
+const ChemState = {
+  activeMission: "NETRALISASI_LIMBAH",
+  isCompleted: false,
+  score: 0,
+  volume: 50,       // mL, starts with 50mL waste
+  targetVolume: 200,
+  currentpH: 1.0,
+  dominantCompound: "HCl",
+  compoundsAdded: 1,
+  reactions: 0,
+  addedList: [],    // track what was added
+
+  init() {
+    this.reset();
+    startTimer('chem-timer', 180, () => {
+      if (!this.isCompleted) openModal('failed', 'TIME OUT!', 'Waktu habis. Limbah masih belum dinetralkan.', null);
+    });
+    addChemLog('Sistem diinisialisasi. Limbah asam terdeteksi.', 'info');
+    addChemLog('TARGET: pH 7.0 ± 0.5 | Volume minimal 200 mL', 'info');
+  },
+
+  reset() {
+    this.isCompleted = false;
+    this.volume = 50;
+    this.currentpH = 1.0;
+    this.dominantCompound = "HCl";
+    this.compoundsAdded = 1;
+    this.reactions = 0;
+    this.addedList = [{name:'HCl', ph:1.0, type:'acid'}];
+    this.updateUI();
+  },
+
+  updateUI() {
+    const pH = this.currentpH;
+    // pH color
+    const phColor = pH < 3 ? '#ff3060' : pH < 5 ? '#ff7a00' : pH < 6.5 ? '#ffe600' : pH <= 7.5 ? '#00ff88' : pH < 10 ? '#00c8ff' : '#b44aff';
+    document.getElementById('ph-display-val').textContent = pH.toFixed(1);
+    document.getElementById('ph-display-val').style.color = phColor;
+    document.getElementById('dominant-compound').textContent = this.dominantCompound;
+    document.getElementById('vol-display').textContent = this.volume + ' mL';
+    document.getElementById('vol-label').textContent = this.volume + ' mL';
+    document.getElementById('compound-count').textContent = this.compoundsAdded;
+    document.getElementById('reaction-count').textContent = this.reactions;
+
+    // volume bar
+    const volPct = Math.min(100, (this.volume / this.targetVolume) * 100);
+    document.getElementById('volumeFill').style.width = volPct + '%';
+
+    // pH indicator (0-14 map to 100%-0%)
+    const phPct = ((14 - pH) / 14) * 100;
+    document.getElementById('phIndicator').style.top = `${Math.min(95,Math.max(2,phPct))}%`;
+
+    // liquid color & height
+    const liq = document.getElementById('liquidFill');
+    liq.style.height = volPct + '%';
+    liq.style.background = `${phColor}99`;
+    liq.querySelector('.liquid-wave').style.background = `${phColor}66`;
+
+    // bubbles
+    this.spawnBubbles(phColor);
+  },
+
+  spawnBubbles(color) {
+    const liq = document.getElementById('liquidFill');
+    const existing = liq.querySelectorAll('.bubble');
+    if (existing.length > 4) return;
+    const b = document.createElement('div');
+    b.className = 'bubble';
+    const size = 4 + Math.random() * 8;
+    b.style.cssText = `width:${size}px;height:${size}px;background:${color};left:${10+Math.random()*60}%;bottom:0;animation-duration:${1.5+Math.random()}s;animation-delay:${Math.random()}s;`;
+    liq.appendChild(b);
+    setTimeout(() => b.remove(), 2500);
+  },
+
+  checkWinCondition() {
+    const targetVolumeReached = this.volume >= this.targetVolume;
+    if (Math.abs(this.currentpH - 7.0) <= 0.5 && targetVolumeReached) {
+      this.isCompleted = true;
+      stopTimer('chem-timer');
+      localStorage.setItem('badge_molecular_expert', 'true');
+      addChemLog('✓ NETRALISASI BERHASIL! pH = ' + this.currentpH.toFixed(1), 'success');
+      setTimeout(() => openModal('success', 'MISSION COMPLETE!', `Limbah berhasil dinetralkan! pH = ${this.currentpH.toFixed(1)}\nVolume final: ${this.volume} mL`, 'MOLECULAR EXPERT BADGE'), 600);
+      return true;
+    }
+    return false;
+  },
+
+  checkFailCondition(newPH) {
+    if (newPH < 0.3 || newPH > 13.5) {
+      const beaker = document.getElementById('beakerContainer');
+      beaker.classList.add('shake');
+      setTimeout(() => beaker.classList.remove('shake'), 600);
+      this.spawnSmoke();
+      addChemLog('⚠ BAHAYA! Konsentrasi ekstrem — eksperimen tidak aman!', 'error');
+      setTimeout(() => {
+        openModal('failed', 'EXPERIMENT FAILED', 'Konsentrasi zat terlalu ekstrem.\nTabung reaksi tidak aman! Reset dan coba strategi lain.');
+      }, 800);
+      return true;
+    }
+    return false;
+  },
+
+  spawnSmoke() {
+    const beaker = document.getElementById('beakerContainer');
+    for (let i = 0; i < 8; i++) {
+      const s = document.createElement('div');
+      s.className = 'smoke-particle';
+      s.style.cssText = `width:${10+Math.random()*20}px;height:${10+Math.random()*20}px;
+        background:rgba(180,74,255,0.4);left:${20+Math.random()*60}%;bottom:${60+Math.random()*40}%;
+        animation-delay:${Math.random()*0.5}s;filter:blur(4px);`;
+      beaker.appendChild(s);
+      setTimeout(() => s.remove(), 2000);
+    }
+  }
+};
+
+function mixCompounds(compoundA, compoundB) {
+  // Simple pH averaging with some chemistry logic
+  const reactions = {
+    'HCl+NaOH': { product: 'NaCl + H₂O', resultPH: 7.0, note: 'Netralisasi sempurna!' },
+    'H₂SO₄+NaOH': { product: 'Na₂SO₄ + H₂O', resultPH: 7.0, note: 'Netralisasi asam sulfat.' },
+    'HCl+NH₃': { product: 'NH₄Cl', resultPH: 5.5, note: 'Garam ammonium terbentuk.' },
+    'CH₃COOH+NaOH': { product: 'CH₃COONa + H₂O', resultPH: 8.9, note: 'Buffer asetat terbentuk.' },
+  };
+  const key = `${compoundA}+${compoundB}`;
+  const key2 = `${compoundB}+${compoundA}`;
+  return reactions[key] || reactions[key2] || null;
+}
+
+function addCompound(name, ph, type) {
+  if (ChemState.isCompleted) return;
+  const prevPH = ChemState.currentpH;
+  const prevVol = ChemState.volume;
+  const addVol = 25; // each addition = 25mL
+
+  // pH calculation: volume-weighted average
+  const newVol = prevVol + addVol;
+  let newPH = (prevPH * prevVol + ph * addVol) / newVol;
+  newPH = Math.max(0, Math.min(14, newPH));
+
+  // Check for known reaction combos
+  if (ChemState.addedList.length > 0) {
+    const lastCompound = ChemState.addedList[ChemState.addedList.length - 1];
+    const rxn = mixCompounds(lastCompound.name, name);
+    if (rxn) {
+      addChemLog(`⚗ REAKSI: ${lastCompound.name} + ${name} → ${rxn.product} | ${rxn.note}`, 'success');
+      ChemState.reactions++;
+      // Pull toward reaction pH more aggressively
+      newPH = (newPH + rxn.resultPH) / 2;
+    }
+  }
+
+  if (ChemState.checkFailCondition(newPH)) { return; }
+
+  ChemState.currentpH = parseFloat(newPH.toFixed(1));
+  ChemState.volume = newVol;
+  ChemState.compoundsAdded++;
+  ChemState.dominantCompound = name;
+  ChemState.addedList.push({name, ph, type});
+
+  addChemLog(`+ ${name} ditambahkan (${addVol}mL). pH: ${prevPH.toFixed(1)} → ${ChemState.currentpH.toFixed(1)}`, type === 'acid' ? 'error' : type === 'base' ? 'info' : 'success');
+  ChemState.updateUI();
+
+  if (!ChemState.checkWinCondition() && ChemState.volume >= ChemState.targetVolume) {
+    addChemLog(`Volume ${ChemState.volume}mL tercapai. pH masih ${ChemState.currentpH.toFixed(1)} — butuh penyesuaian lebih.`, 'info');
+  }
+}
+
+function activateMix() {
+  if (ChemState.addedList.length < 2) { showToast('Tambahkan minimal 2 senyawa terlebih dahulu!', 'error'); return; }
+  addChemLog('⚡ MIXING ACTIVATED — Kalkulasi reaksi dijalankan...', 'info');
+  // Simulate mixing effect
+  const beaker = document.getElementById('beakerContainer');
+  beaker.style.animation = 'none';
+  setTimeout(() => { beaker.style.animation = ''; ChemState.checkWinCondition(); }, 100);
+}
+
+function addChemLog(msg, type = '') {
+  const log = document.getElementById('reactionLog');
+  const now = new Date();
+  const ts = `[${String(now.getMinutes()).padStart(2,'0')}:${String(now.getSeconds()).padStart(2,'0')}]`;
+  const el = document.createElement('div');
+  el.className = `log-entry ${type}`;
+  el.innerHTML = `<span class="log-time">${ts}</span> ${msg}`;
+  log.appendChild(el);
+  log.scrollTop = log.scrollHeight;
+}
+
+function resetChem() {
+  stopTimer('chem-timer');
+  ChemState.reset();
+  document.getElementById('reactionLog').innerHTML = '';
+  ChemState.init();
+}
+
+// ══════════════════════════════════════════════
+// LAB 2: FISIKA — STATE MANAGEMENT
+// ══════════════════════════════════════════════
+const PhysState = {
+  isCompleted: false,
+  circuitOn: false,
+  voltage: 9,
+  components: {}, // cellId -> {type, resistance, voltage, emoji}
+
+  init() {
+    this.buildGrid();
+    startTimer('phys-timer', 300, () => {
+      if (!this.isCompleted) openModal('failed', 'TIME OUT!', 'Waktu habis. Kota masih gelap gulita!');
+    });
+    this.drawOscWave(false);
+  },
+
+  buildGrid() {
+    const grid = document.getElementById('circuitGrid');
+    grid.innerHTML = '';
+    for (let i = 0; i < 24; i++) {
+      const cell = document.createElement('div');
+      cell.className = 'circuit-cell';
+      cell.id = `cell-${i}`;
+      cell.ondragover = allowDrop;
+      cell.ondrop = e => dropComponent(e, i);
+      grid.appendChild(cell);
+    }
+  },
+
+  calcOhm() {
+    const comps = Object.values(this.components);
+    const hasBattery = comps.some(c => c.type === 'battery');
+    const hasLamp = comps.some(c => c.type === 'lamp');
+    const resistors = comps.filter(c => c.type === 'resistor');
+    const totalR = resistors.reduce((s, c) => s + c.resistance, 0) + (hasLamp ? 2 : 0);
+    const V = hasBattery ? this.voltage : 0;
+    const I = totalR > 0 ? V / totalR : Infinity;
+    return { V, R: totalR, I, hasBattery, hasLamp, hasResistor: resistors.length > 0 };
+  },
+
+  updateOhmDisplay(calc) {
+    document.getElementById('volt-val').textContent = calc.hasBattery ? calc.V : '—';
+    document.getElementById('resist-val').textContent = calc.R > 0 ? calc.R.toFixed(1) : '—';
+    document.getElementById('current-val').textContent = isFinite(calc.I) ? calc.I.toFixed(2) : '∞';
+    document.getElementById('ohm-equation').textContent =
+      `${calc.hasBattery ? calc.V : '?'}V = ${isFinite(calc.I) ? calc.I.toFixed(2) : '?'}A × ${calc.R > 0 ? calc.R.toFixed(1) : '?'}Ω`;
+
+    if (isFinite(calc.I)) {
+      const iEl = document.getElementById('current-val');
+      iEl.style.color = calc.I >= 1.5 && calc.I <= 2.0 ? 'var(--neon-green)' : calc.I > 2.0 ? 'var(--neon-red)' : 'var(--neon-blue)';
+    }
+  },
+
+  checkCircuit() {
+    const calc = this.calcOhm();
+    this.updateOhmDisplay(calc);
+
+    if (!calc.hasBattery || !calc.hasLamp) {
+      showToast('Rangkaian tidak lengkap! Butuh Battery + Lamp minimal.', 'error'); return;
+    }
+
+    if (calc.R === 0) {
+      // Short circuit!
+      document.getElementById('lampIcon').textContent = '💥';
+      document.getElementById('lampIcon').className = 'lamp-icon';
+      document.getElementById('lampStatus').textContent = 'SHORT CIRCUIT!';
+      document.getElementById('lampStatus').style.color = 'var(--neon-red)';
+      document.getElementById('oscStatus').textContent = '// ⚠ SHORT CIRCUIT DETECTED — R = 0Ω';
+      document.getElementById('oscStatus').style.color = 'var(--neon-red)';
+      this.drawOscWave('overload');
+      openModal('failed', 'SHORT CIRCUIT!', 'Resistansi = 0Ω! Arus tak terbatas merusak rangkaian.\nTambahkan resistor untuk membatasi arus.');
+      return;
+    }
+
+    if (!isFinite(calc.I) || calc.I > 4.0) {
+      document.getElementById('lampIcon').textContent = '💥';
+      document.getElementById('lampStatus').textContent = 'OVERLOAD — BURNT OUT!';
+      document.getElementById('lampStatus').style.color = 'var(--neon-red)';
+      document.getElementById('lampIcon').classList.add('overload');
+      this.drawOscWave('overload');
+      openModal('failed', 'LAMP OVERLOADED!', `Arus ${calc.I.toFixed(2)}A melebihi toleransi!\nGunakan lebih banyak resistor.`);
+      return;
+    }
+
+    if (calc.I >= 1.5 && calc.I <= 2.0) {
+      // WIN!
+      this.isCompleted = true;
+      stopTimer('phys-timer');
+      document.getElementById('lampIcon').textContent = '💡';
+      document.getElementById('lampIcon').className = 'lamp-icon on';
+      document.getElementById('lampStatus').textContent = `PERFECT! I = ${calc.I.toFixed(2)}A ✓`;
+      document.getElementById('lampStatus').style.color = 'var(--neon-green)';
+      this.drawOscWave('normal', calc.I);
+      document.getElementById('oscStatus').textContent = `// ✓ STABLE — I = ${calc.I.toFixed(2)}A — DALAM TOLERANSI`;
+      document.getElementById('oscStatus').style.color = 'var(--neon-green)';
+      localStorage.setItem('badge_circuit_master', 'true');
+      setTimeout(() => openModal('success', 'POWER RESTORED!', `Arus ${calc.I.toFixed(2)}A dalam rentang toleransi.\nLampu menyala — Kota bercahaya kembali!`, 'CIRCUIT MASTER BADGE'), 600);
+    } else {
+      // Not optimal
+      document.getElementById('lampIcon').textContent = '💡';
+      document.getElementById('lampIcon').className = 'lamp-icon';
+      document.getElementById('lampStatus').textContent = `I = ${calc.I.toFixed(2)}A — DI LUAR TOLERANSI`;
+      document.getElementById('lampStatus').style.color = 'var(--neon-yellow)';
+      this.drawOscWave('weak', calc.I);
+      document.getElementById('oscStatus').textContent = `// ⚠ I = ${calc.I.toFixed(2)}A — Target: 1.5–2.0A`;
+      document.getElementById('oscStatus').style.color = 'var(--neon-yellow)';
+      showToast(`Arus ${calc.I.toFixed(2)}A — Sesuaikan resistor hingga 1.5–2.0A!`, 'error');
+    }
+  },
+
+  drawOscWave(mode, current = 1.0) {
+    const svg = document.getElementById('oscWave');
+    if (!mode) { svg.innerHTML = ''; return; }
+
+    const W = 300, H = 140;
+    const amplitude = mode === 'normal' ? 40 : mode === 'weak' ? 20 : mode === 'overload' ? 60 : 10;
+    const freq = mode === 'overload' ? 3 : 1.5;
+    let d = `M 0 ${H/2}`;
+    for (let x = 0; x <= W; x += 2) {
+      const y = H/2 - amplitude * Math.sin((x / W) * Math.PI * 2 * freq);
+      d += ` L ${x} ${y}`;
+    }
+    const color = mode === 'normal' ? '#00ff88' : mode === 'overload' ? '#ff3060' : '#ffe600';
+    svg.innerHTML = `<path d="${d}" stroke="${color}" stroke-width="2" fill="none" opacity="0.9"/>
+      <path d="${d}" stroke="${color}" stroke-width="6" fill="none" opacity="0.1"/>`;
+  }
+};
+
+let dragData = null;
+
+function dragComponent(e) {
+  dragData = { type: e.currentTarget.dataset.type, resistance: parseFloat(e.currentTarget.dataset.resistance||0), voltage: parseFloat(e.currentTarget.dataset.voltage||0) };
+  e.currentTarget.style.opacity = '0.5';
+  setTimeout(() => e.currentTarget.style.opacity = '1', 100);
+}
+
+function dropComponent(e, cellIdx) {
+  e.preventDefault();
+  if (!dragData) return;
+  const cell = document.getElementById(`cell-${cellIdx}`);
+  if (cell.textContent.trim() && !cell.querySelector('.remove-cell')) return; // occupied
+
+  const icons = { battery:'🔋', resistor:'⬛', lamp:'💡', switch:'🔘' };
+  const labels = { battery:`${dragData.voltage}V`, resistor:`${dragData.resistance}Ω`, lamp:'LED', switch:'SW' };
+
+  cell.innerHTML = `<span style="font-size:22px">${icons[dragData.type]}</span>
+    <span class="cell-label">${labels[dragData.type]}</span>
+    <button class="remove-cell" onclick="removeCell(${cellIdx})">✕</button>`;
+  cell.classList.add('has-component');
+
+  PhysState.components[cellIdx] = { ...dragData };
+  PhysState.updateOhmDisplay(PhysState.calcOhm());
+  dragData = null;
+
+  // Draw wires
+  drawWires();
+}
+
+function removeCell(idx) {
+  const cell = document.getElementById(`cell-${idx}`);
+  cell.innerHTML = '';
+  cell.classList.remove('has-component');
+  delete PhysState.components[idx];
+  PhysState.updateOhmDisplay(PhysState.calcOhm());
+  drawWires();
+}
+
+function drawWires() {
+  // Simple visual — highlight connected cells
+  const keys = Object.keys(PhysState.components).map(Number).sort((a,b)=>a-b);
+  document.querySelectorAll('.circuit-cell').forEach(c => c.style.boxShadow = '');
+  if (keys.length >= 2) {
+    keys.forEach(k => {
+      const c = document.getElementById(`cell-${k}`);
+      if (c) c.style.boxShadow = '0 0 8px rgba(0,200,255,0.3)';
+    });
+  }
+}
+
+function toggleCircuit() {
+  const btn = document.getElementById('circuitSwitch');
+  PhysState.circuitOn = !PhysState.circuitOn;
+  if (PhysState.circuitOn) {
+    btn.textContent = '🔌 DEACTIVATE CIRCUIT';
+    btn.classList.add('on');
+    PhysState.checkCircuit();
+  } else {
+    btn.textContent = '⚡ ACTIVATE CIRCUIT';
+    btn.classList.remove('on');
+    document.getElementById('lampIcon').textContent = '💡';
+    document.getElementById('lampIcon').className = 'lamp-icon';
+    document.getElementById('lampStatus').textContent = 'CIRCUIT INACTIVE';
+    document.getElementById('lampStatus').style.color = 'var(--text-dim)';
+    PhysState.drawOscWave(false);
+    document.getElementById('oscStatus').textContent = '// STANDBY — Activate circuit to see waveform';
+    document.getElementById('oscStatus').style.color = '#006020';
+  }
+}
+
+function resetPhys() {
+  stopTimer('phys-timer');
+  PhysState.isCompleted = false;
+  PhysState.circuitOn = false;
+  PhysState.components = {};
+  PhysState.buildGrid();
+  PhysState.updateOhmDisplay({ V: 9, R: 0, I: 0, hasBattery: false, hasLamp: false });
+  document.getElementById('lampIcon').textContent = '💡';
+  document.getElementById('lampIcon').className = 'lamp-icon';
+  document.getElementById('lampStatus').textContent = 'CIRCUIT INACTIVE';
+  document.getElementById('lampStatus').style.color = 'var(--text-dim)';
+  PhysState.drawOscWave(false);
+  document.getElementById('oscStatus').textContent = '// STANDBY — Activate circuit to see waveform';
+  document.getElementById('oscStatus').style.color = '#006020';
+  document.getElementById('circuitSwitch').textContent = '⚡ ACTIVATE CIRCUIT';
+  document.getElementById('circuitSwitch').classList.remove('on');
+  document.getElementById('volt-val').textContent = '9';
+  document.getElementById('resist-val').textContent = '—';
+  document.getElementById('current-val').textContent = '—';
+  document.getElementById('ohm-equation').textContent = '9V = ? × ?Ω';
+  PhysState.init();
+}
+
+// ══════════════════════════════════════════════
+// LAB 3: BIOLOGI — STATE MANAGEMENT
+// ══════════════════════════════════════════════
+const BioState = {
+  isCompleted: false,
+  mistakes: 0,
+  maxMistakes: 3,
+  organsPlaced: 0,
+  totalOrgans: 5,
+  diagnosedComplaints: 0,
+  totalComplaints: 3,
+  placedOrgans: new Set(),
+  diagnosedSet: new Set(),
+  scanActive: false,
+  activeScanComplaint: null,
+  selectedComplaint: null,
+
+  init() {
+    this.reset();
+    startTimer('bio-timer', 240, () => {
+      if (!this.isCompleted) openModal('failed', 'TIME OUT!', 'Waktu habis. Pasien belum terdiagnosis!');
+    });
+  },
+
+  reset() {
+    this.mistakes = 0;
+    this.organsPlaced = 0;
+    this.diagnosedComplaints = 0;
+    this.placedOrgans = new Set();
+    this.diagnosedSet = new Set();
+    this.scanActive = false;
+    this.activeScanComplaint = null;
+    this.selectedComplaint = null;
+    this.isCompleted = false;
+    this.updateUI();
+  },
+
+  updateUI() {
+    // Mistake dots
+    for (let i = 1; i <= 3; i++) {
+      const dot = document.getElementById(`md-${i}`);
+      if (dot) dot.classList.toggle('used', i <= this.mistakes);
+    }
+    document.getElementById('organs-placed').textContent = this.organsPlaced;
+    document.getElementById('mistake-count').textContent = this.mistakes;
+    document.getElementById('organs-placed2').textContent = `${this.organsPlaced}/${this.totalOrgans}`;
+    document.getElementById('diag-count').textContent = `${this.diagnosedComplaints}/${this.totalComplaints}`;
+
+    // Progress ring
+    const total = this.totalOrgans + this.totalComplaints;
+    const done = this.organsPlaced + this.diagnosedComplaints;
+    const pct = Math.round((done / total) * 100);
+    const circ = 301.6;
+    document.getElementById('bioProgress').style.strokeDashoffset = circ - (pct / 100) * circ;
+    document.getElementById('progressText').textContent = pct + '%';
+  },
+
+  checkWin() {
+    if (this.organsPlaced >= this.totalOrgans && this.diagnosedComplaints >= this.totalComplaints) {
+      this.isCompleted = true;
+      stopTimer('bio-timer');
+      localStorage.setItem('badge_anatomy_detective', 'true');
+      setTimeout(() => openModal('success', 'DIAGNOSIS COMPLETE!', 'Semua organ terpasang dengan benar.\n3 keluhan pasien berhasil didiagnosis!', 'ANATOMY DETECTIVE BADGE'), 600);
+    }
+  },
+
+  checkFail() {
+    if (this.mistakes >= this.maxMistakes) {
+      stopTimer('bio-timer');
+      openModal('failed', 'TOO MANY ERRORS!', '3 kesalahan fatal! Penempatan organ yang salah bisa membahayakan pasien.');
+    }
+  }
+};
+
+// Organ correct drop zone map
+const organDropMap = { 'heart': 'dz-heart', 'lung-l': 'dz-lung-l', 'lung-r': 'dz-lung-r', 'stomach': 'dz-stomach', 'brain': 'dz-brain' };
+
+function dragOrgan(e) {
+  dragData = { organId: e.currentTarget.dataset.organ };
+  e.dataTransfer.setData('text/plain', e.currentTarget.dataset.organ);
+}
+
+function allowDrop(e) { e.preventDefault(); }
+
+function dropOrgan(e, dzOrgan) {
+  e.preventDefault();
+  const droppedOrgan = dragData ? dragData.organId : e.dataTransfer.getData('text/plain');
+  if (!droppedOrgan) return;
+
+  const dzEl = document.getElementById(`dz-${dzOrgan}`);
+  if (BioState.placedOrgans.has(dzOrgan)) return; // already filled
+
+  if (droppedOrgan === dzOrgan) {
+    // CORRECT!
+    dzEl.classList.add('correct', 'filled');
+    dzEl.classList.remove('active');
+    BioState.placedOrgans.add(dzOrgan);
+    BioState.organsPlaced++;
+    // Mark organ as placed
+    const organEl = document.getElementById(`organ-${droppedOrgan}`);
+    if (organEl) organEl.classList.add('placed');
+    addScanLog(`✓ ${droppedOrgan.toUpperCase()} terpasang dengan benar!`);
+    showToast(`✓ ${droppedOrgan} — Posisi tepat!`, 'success');
+  } else {
+    // WRONG!
+    BioState.mistakes++;
+    dzEl.classList.add('wrong');
+    setTimeout(() => dzEl.classList.remove('wrong'), 600);
+    addScanLog(`✗ Salah! ${droppedOrgan} bukan di sini.`);
+    showToast(`✗ Organ salah posisi! Coba lagi.`, 'error');
+    BioState.checkFail();
+  }
+
+  dragData = null;
+  BioState.updateUI();
+  BioState.checkWin();
+}
+
+// Complaint scanning
+function scanComplaint(complaintNum, targetOrgan) {
+  if (!BioState.scanActive) {
+    showToast('Aktifkan Scan Tool terlebih dahulu!', 'error'); return;
+  }
+  if (BioState.diagnosedSet.has(complaintNum)) return;
+
+  BioState.selectedComplaint = { num: complaintNum, organ: targetOrgan };
+  addScanLog(`>> Keluhan #${complaintNum} dipilih — Organ target: ${targetOrgan.toUpperCase()}`);
+  addScanLog(`>> Menunggu konfirmasi diagnosis...`);
+
+  // Auto-diagnose if we're scanning
+  setTimeout(() => {
+    if (BioState.placedOrgans.has(targetOrgan) || BioState.scanActive) {
+      BioState.diagnosedSet.add(complaintNum);
+      BioState.diagnosedComplaints++;
+      document.getElementById(`complaint-${complaintNum}`).classList.add('diagnosed');
+      document.getElementById(`cs-${complaintNum}`).textContent = '✅';
+      addScanLog(`✓ DIAGNOSIS CONFIRMED — Keluhan #${complaintNum}: ${targetOrgan.toUpperCase()}`);
+      showToast(`Diagnosis #${complaintNum} berhasil!`, 'success');
+      BioState.updateUI();
+      BioState.checkWin();
+    }
+  }, 800);
+}
+
+function activateScan() {
+  BioState.scanActive = !BioState.scanActive;
+  const btn = document.querySelector('.scan-btn');
+  if (BioState.scanActive) {
+    btn.textContent = '🔬 SCAN ACTIVE — Click Complaint to Diagnose';
+    btn.style.borderColor = 'var(--neon-green)';
+    btn.style.color = 'var(--neon-green)';
+    addScanLog('>> SCAN TOOL ACTIVATED');
+    addScanLog('>> Klik keluhan pasien untuk mendiagnosis');
+    showToast('Scan Tool aktif! Klik keluhan untuk diagnosa.', 'success');
+  } else {
+    btn.textContent = '🔬 ACTIVATE SCAN TOOL';
+    btn.style.borderColor = 'var(--neon-purple)';
+    btn.style.color = 'var(--neon-purple)';
+    addScanLog('>> Scan tool standby');
+  }
+}
+
+function addScanLog(msg) {
+  const log = document.getElementById('scanLog');
+  const el = document.createElement('div');
+  el.textContent = msg;
+  if (msg.startsWith('✓')) el.style.color = 'var(--neon-green)';
+  else if (msg.startsWith('✗')) el.style.color = 'var(--neon-red)';
+  else el.style.color = 'var(--neon-blue)';
+  log.appendChild(el);
+  log.scrollTop = log.scrollHeight;
+}
+
+function resetBio() {
+  stopTimer('bio-timer');
+  BioState.reset();
+  // Reset organ items
+  document.querySelectorAll('.organ-item').forEach(o => o.classList.remove('placed'));
+  // Reset drop zones
+  document.querySelectorAll('.drop-zone').forEach(dz => {
+    dz.classList.remove('correct','filled','wrong','active');
+  });
+  // Reset complaints
+  for (let i = 1; i <= 3; i++) {
+    document.getElementById(`complaint-${i}`).classList.remove('diagnosed');
+    document.getElementById(`cs-${i}`).textContent = '🔍';
+  }
+  document.getElementById('complaint-1').classList.add('active-complaint');
+  // Reset scan btn
+  const btn = document.querySelector('.scan-btn');
+  btn.textContent = '🔬 ACTIVATE SCAN TOOL';
+  btn.style.borderColor = 'var(--neon-purple)';
+  btn.style.color = 'var(--neon-purple)';
+  document.getElementById('scanLog').innerHTML = '<div>// Scan tool standby</div>';
+  BioState.init();
+}
+
+// ══════════════════════════════════════════════
+// INIT
+// ══════════════════════════════════════════════
+ChemState.init();
+PhysState.init();
+BioState.init();
+</script>
+</body>
+</html>
