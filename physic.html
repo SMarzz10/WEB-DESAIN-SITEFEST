@@ -38,7 +38,7 @@
             <i class="bx bxs-home nav-icon"></i>
             <span>Home</span>
           </a>
-          <a href="#" class="nav-item">
+          <a href="chemistry.html" class="nav-item">
             <i class="bx bxs-flask nav-icon"></i>
             <span>Chemistry Lab</span>
           </a>
@@ -56,15 +56,6 @@
           </a>
         </nav>
 
-        <div class="sidebar-bottom">
-          <div class="sidebar-user">
-            <div class="sidebar-avatar">👩‍🔬</div>
-            <div class="sidebar-user-info">
-              <div class="sidebar-user-name">Aisyah Rahma</div>
-              <div class="sidebar-user-role">Researcher · Lv.12</div>
-            </div>
-          </div>
-        </div>
       </aside>
 
       <!-- ══ MAIN ══ -->
@@ -95,14 +86,16 @@
             </div>
             <div style="display: flex; gap: 8px; align-items: center">
               <button class="btn btn-yellow btn-sm" onclick="loadChallenge()">
-                🏆 Challenge Mode
+                <i class="bx bxs-trophy"></i>
+                Challenge Mode
               </button>
               <button
                 class="btn btn-primary btn-sm"
                 id="runBtnTop"
                 onclick="toggleRun()"
               >
-                ▶ Run Simulation
+              <i class="bx bx-play"></i>  
+              Run Simulation
               </button>
             </div>
           </div>
@@ -114,7 +107,7 @@
               <!-- Circuit Type -->
               <div class="panel-card">
                 <div class="panel-header">
-                  <div class="panel-header-icon">⚡</div>
+                  <div class="panel-header-icon"><i class="bx bxs-bolt"></i></div>
                   <span class="panel-header-title">Circuit Type</span>
                 </div>
                 <div class="panel-body" style="padding-bottom: 10px">
@@ -123,15 +116,18 @@
                       class="tab-btn active"
                       onclick="setCircuit('series', this)"
                     >
+                      <i class="bx bx-git-commit"></i>
                       Series
                     </button>
                     <button
                       class="tab-btn"
                       onclick="setCircuit('parallel', this)"
                     >
+                      <i class="bx bx-sitemap"></i>
                       Parallel
                     </button>
                     <button class="tab-btn" onclick="setCircuit('mixed', this)">
+                      <i class="bx bx-network-chart"></i>
                       Mixed
                     </button>
                   </div>
@@ -141,7 +137,7 @@
               <!-- Power Source -->
               <div class="panel-card">
                 <div class="panel-header">
-                  <div class="panel-header-icon">🔋</div>
+                  <div class="panel-header-icon"><i class="bx bx-bolt-circle"></i></div>
                   <span class="panel-header-title">Power Source</span>
                   <span class="panel-header-badge" id="srcType">DC</span>
                 </div>
@@ -193,7 +189,7 @@
               <!-- Resistors -->
               <div class="panel-card">
                 <div class="panel-header">
-                  <div class="panel-header-icon">🔌</div>
+                  <div class="panel-header-icon"><i class="bx bx-power-off"></i></div>
                   <span class="panel-header-title">Resistors</span>
                 </div>
                 <div class="panel-body">
@@ -251,7 +247,7 @@
               <!-- Components -->
               <div class="panel-card">
                 <div class="panel-header">
-                  <div class="panel-header-icon">🔧</div>
+                  <div class="panel-header-icon"><i class="bx bxs-wrench"></i></div>
                   <span class="panel-header-title">Components</span>
                 </div>
                 <div class="panel-body">
@@ -260,28 +256,28 @@
                       class="comp-btn active"
                       onclick="this.classList.toggle('active')"
                     >
-                      <span class="comp-icon">💡</span
+                      <span class="comp-icon"><i class="bx bxs-bulb"></i></span
                       ><span class="comp-label">Bulb</span>
                     </div>
                     <div
                       class="comp-btn active"
                       onclick="this.classList.toggle('active')"
                     >
-                      <span class="comp-icon">🟡</span
+                      <span class="comp-icon"><i class="bx bxs-tachometer"></i></span
                       ><span class="comp-label">Voltmeter</span>
                     </div>
                     <div
-                      class="comp-btn"
+                      class="comp-btn active"
                       onclick="this.classList.toggle('active')"
                     >
-                      <span class="comp-icon">🔵</span
+                      <span class="comp-icon"><i class="bx bx-trip"></i></span
                       ><span class="comp-label">Ammeter</span>
                     </div>
                     <div
-                      class="comp-btn"
+                      class="comp-btn active"
                       onclick="this.classList.toggle('active')"
                     >
-                      <span class="comp-icon">⚡</span
+                      <span class="comp-icon"><i class="bx bxs-bolt"></i></span
                       ><span class="comp-label">Capacitor</span>
                     </div>
                   </div>
@@ -352,10 +348,10 @@
                     class="action-btn ab-challenge"
                     onclick="loadChallenge()"
                   >
-                    🏆 Challenge Mode
+                    <i class="bx bxs-trophy"></i> Challenge Mode
                   </button>
                   <button class="action-btn ab-reset" onclick="resetLab()">
-                    ↺ Reset Circuit
+                    <i class="bx bx-refresh"></i> Reset Circuit
                   </button>
                 </div>
               </div>
@@ -369,7 +365,7 @@
                   <div class="sdot"></div>
                   <div class="sdot"></div>
                   <span class="sim-label"
-                    >⚡ Electric Circuit Simulator — Realtime</span
+                    ><i class="bx bxs-bolt"></i> Electric Circuit Simulator - Realtime</span
                   >
                   <div
                     class="sim-running-badge"
@@ -414,7 +410,7 @@
               <!-- Formula row -->
               <div class="formula-row">
                 <div class="formula-mini">
-                  <span class="fm-icon">⚡</span>
+                  <span class="fm-icon"><i class="bx bxs-bolt"></i></span>
                   <div class="fm-name">Ohm's Law</div>
                   <div class="fm-eq"><span>V</span> = IR</div>
                   <div class="fm-desc">Current ∝ Voltage, ∝ 1/Resistance</div>

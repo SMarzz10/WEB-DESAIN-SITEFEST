@@ -1,4 +1,4 @@
-<!-- BIOLOGY LAB -->
+<!-- BIOLOGY LAB — Holographic Anatomy Simulator -->
 <!DOCTYPE html>
 <html lang="en">
   <head>
@@ -6,20 +6,19 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>Eksperika — Biology Lab</title>
     <link rel="stylesheet" href="css/boxicons.min.css" />
-    <link rel="stylesheet" href="css/global.css">
-    <link rel="stylesheet" href="css/biology.css">
+    <link rel="stylesheet" href="css/global.css" />
+    <link rel="stylesheet" href="css/biology.css" />
     <link
       href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Space+Grotesk:wght@400;500;600;700&family=Space+Mono:wght@400;700&display=swap"
       rel="stylesheet"
     />
   </head>
-  <body>
+  <body class="biology-lab">
     <div class="cursor" id="cursor"></div>
     <div class="cursor-dot" id="cursorDot"></div>
-    <div class="grid-bg"></div>
+    <div class="grid-bg biology-grid"></div>
 
     <div class="app">
-      <!-- SIDEBAR -->
       <aside class="sidebar">
         <a href="dashboard.html" class="sidebar-logo">
           <div class="sidebar-logo-icon">
@@ -38,7 +37,7 @@
             <i class="bx bxs-home nav-icon"></i>
             <span>Home</span>
           </a>
-          <a href="#" class="nav-item">
+          <a href="chemistry.html" class="nav-item">
             <i class="bx bxs-flask nav-icon"></i>
             <span>Chemistry Lab</span>
           </a>
@@ -67,9 +66,7 @@
         </div>
       </aside>
 
-      <!-- ══ MAIN ══ -->
       <div class="main">
-        <!-- TOP BAR -->
         <header class="topbar">
           <div>
             <div class="topbar-title">BIOLOGY LAB</div>
@@ -78,303 +75,517 @@
               <a href="biology.html">BIOLOGY</a> / HUMAN ANATOMY
             </div>
           </div>
+          <div class="topbar-status">
+            <span class="status-pill live"><span class="status-dot"></span> HOLO-SCAN ACTIVE</span>
+          </div>
         </header>
 
-        <!-- CONTENT -->
         <div class="content">
-          <!-- Page Header -->
           <div class="page-header">
             <div>
               <div class="page-tag">
-                <span class="wdot"></span> Biology Module · Human Anatomy
+                <span class="wdot"></span> Biology Module · Holographic Anatomy
               </div>
-              <div class="page-title">HUMAN BODY <span>SIMULATION</span></div>
+              <div class="page-title">INTERNAL ORGANS <span>OF THE HUMAN</span></div>
               <div class="page-sub">
-                14-organ model · Histology metrics · System overlays · Live vitals
+                Educational anatomy map · Interactive call-outs · Live biosensor panel
               </div>
             </div>
-            <div style="display: flex; gap: 8px; align-items: center">
-              <button class="btn btn-yellow btn-sm">
-                🏆 Quiz Mode
-              </button>
-              <button class="btn btn-primary btn-sm" id="resetBtn">
-                🔄 Reset View
-              </button>
+            <div class="page-actions">
+              <button class="btn btn-yellow btn-sm" type="button">Quiz Mode</button>
+              <button class="btn btn-primary btn-sm" type="button" id="resetBtn">Reset View</button>
             </div>
           </div>
 
-          <!-- Main Grid -->
           <div class="sim-grid">
-            <!-- Left: Controls -->
-            <div class="sim-sidebar">
-              <div class="sim-card">
-                <div class="card-title">SYSTEM SELECTOR</div>
+            <!-- LEFT: Controls & organ index -->
+            <div class="sim-sidebar sim-sidebar-left">
+              <div class="sim-card glass-panel">
+                <div class="card-title"><i class="bx bx-layer"></i> System Selector</div>
                 <div class="tab-row tab-row-wrap">
-                  <button class="tab-btn" onclick="setSystem('skeletal', this)">Skeletal</button>
-                  <button class="tab-btn active" onclick="setSystem('organs', this)">Organs</button>
-                  <button class="tab-btn" onclick="setSystem('muscular', this)">Muscle</button>
-                  <button class="tab-btn" onclick="setSystem('nervous', this)">Nervous</button>
-                  <button class="tab-btn" onclick="setSystem('circulatory', this)">Blood</button>
+                  <button class="tab-btn" type="button" data-system="skeletal">Skeletal</button>
+                  <button class="tab-btn active" type="button" data-system="organs">Organs</button>
+                  <button class="tab-btn" type="button" data-system="muscular">Muscle</button>
+                  <button class="tab-btn" type="button" data-system="nervous">Nervous</button>
+                  <button class="tab-btn" type="button" data-system="circulatory">Blood</button>
                 </div>
 
                 <div class="control-group">
-                  <label>Body Outline Opacity</label>
-                  <input type="range" id="opacitySlider" min="20" max="100" value="80" oninput="updateOpacity()">
+                  <label for="opacitySlider">Body Shell Opacity</label>
+                  <input type="range" id="opacitySlider" min="15" max="100" value="70" />
                 </div>
                 <div class="control-group">
-                  <label>3D Rotation</label>
-                  <input type="range" id="rotateSlider" min="0" max="360" value="0" oninput="updateRotation()">
+                  <label for="rotateSlider">3D Rotation</label>
+                  <input type="range" id="rotateSlider" min="-25" max="25" value="0" />
                 </div>
                 <div class="control-group">
-                  <label>Zoom</label>
-                  <input type="range" id="zoomSlider" min="70" max="130" value="100" oninput="updateZoom()">
+                  <label for="zoomSlider">Zoom</label>
+                  <input type="range" id="zoomSlider" min="75" max="125" value="100" />
                 </div>
+
+                <div class="card-title card-title-sm">Anatomy Filters</div>
                 <div class="layer-toggles">
-                  <label class="layer-check"><input type="checkbox" checked onchange="toggleLayer('outline', this.checked)"> Skin outline</label>
-                  <label class="layer-check"><input type="checkbox" checked onchange="toggleLayer('organs', this.checked)"> Organs</label>
-                  <label class="layer-check"><input type="checkbox" checked onchange="toggleLayer('labels', this.checked)"> Labels</label>
+                  <label class="layer-check"><input type="checkbox" checked data-layer="outline" /> Skin shell</label>
+                  <label class="layer-check"><input type="checkbox" checked data-layer="organs" /> Organs</label>
+                  <label class="layer-check"><input type="checkbox" checked data-layer="vessels" /> Blood vessels</label>
+                  <label class="layer-check"><input type="checkbox" checked data-layer="labels" /> Call-out labels</label>
                 </div>
               </div>
 
-              <div class="sim-card">
-                <div class="card-title">ORGAN INDEX</div>
-                <div id="organIndex" class="organ-index"></div>
-              </div>
-
-              <div class="sim-card">
-                <div class="card-title">ORGAN DETAILS</div>
-                <div id="organInfo" class="info-box info-box-scroll">
-                  <div class="info-placeholder">Select an organ from the body model or index to view histological data, physiological metrics, and system interactions.</div>
-                </div>
-              </div>
             </div>
 
-            <!-- Middle: Body Visualization -->
-            <div class="sim-view">
-              <div class="body-viewport">
+            <!-- CENTER: Educational anatomy diagram -->
+            <div class="sim-view glass-panel-view anatomy-board">
+              <div class="anatomy-title-bar">
+                <h2 class="anatomy-title">INTERNAL ORGANS OF THE HUMAN</h2>
+                <div class="anatomy-title-meta">
+                  <span id="holoMode">ORGAN VIEW</span>
+                  <span class="meta-sep">·</span>
+                  <span id="holoOrgan">Select an organ</span>
+                </div>
+              </div>
+
+              <div class="anatomy-layout" id="anatomyLayout">
+                <div class="callouts-col callouts-left" id="calloutsLeft" aria-label="Left organ call-outs"></div>
+
+                <div class="anatomy-center-wrap">
+                  <div class="body-viewport" id="bodyViewport">
                 <div class="body-container" id="bodyContainer">
-                  <svg viewBox="0 0 200 520" class="human-body-svg" id="humanSvg">
+                  <svg viewBox="0 0 240 560" class="human-body-svg" id="humanSvg" aria-label="Interactive human anatomy model">
                     <defs>
-                      <radialGradient id="bodyGlow" cx="50%" cy="45%" r="55%">
-                        <stop offset="0%" style="stop-color:#8b5cf6;stop-opacity:0.18" />
-                        <stop offset="100%" style="stop-color:transparent;stop-opacity:0" />
+                      <radialGradient id="holoAmbient" cx="50%" cy="42%" r="50%">
+                        <stop offset="0%" stop-color="#22d3ee" stop-opacity="0.12" />
+                        <stop offset="55%" stop-color="#8b5cf6" stop-opacity="0.06" />
+                        <stop offset="100%" stop-color="transparent" />
                       </radialGradient>
-                      <linearGradient id="gradBrain" x1="0" y1="0" x2="1" y2="1">
-                        <stop offset="0%" stop-color="#f9a8d4" stop-opacity="0.5"/>
-                        <stop offset="100%" stop-color="#f472b6" stop-opacity="0.25"/>
+                      <!-- Realistic holographic skin gradients -->
+                      <linearGradient id="skinBaseGrad" x1="0.35" y1="0" x2="0.65" y2="1">
+                        <stop offset="0%" stop-color="#f5d5c8" stop-opacity="0.22" />
+                        <stop offset="18%" stop-color="#e8b89a" stop-opacity="0.2" />
+                        <stop offset="45%" stop-color="#d4a088" stop-opacity="0.16" />
+                        <stop offset="72%" stop-color="#c4937a" stop-opacity="0.14" />
+                        <stop offset="100%" stop-color="#a67c65" stop-opacity="0.1" />
                       </linearGradient>
-                      <linearGradient id="gradHeart" x1="0" y1="0" x2="0" y2="1">
-                        <stop offset="0%" stop-color="#f87171"/>
-                        <stop offset="100%" stop-color="#dc2626" stop-opacity="0.4"/>
+                      <radialGradient id="skinHeadGrad" cx="50%" cy="35%" r="55%">
+                        <stop offset="0%" stop-color="#fce8dc" stop-opacity="0.28" />
+                        <stop offset="70%" stop-color="#e8c4a8" stop-opacity="0.12" />
+                        <stop offset="100%" stop-color="#c9a882" stop-opacity="0.05" />
+                      </radialGradient>
+                      <linearGradient id="skinShadowGrad" x1="0" y1="0" x2="1" y2="0">
+                        <stop offset="0%" stop-color="#5c4033" stop-opacity="0.18" />
+                        <stop offset="22%" stop-color="transparent" stop-opacity="0" />
+                        <stop offset="78%" stop-color="transparent" stop-opacity="0" />
+                        <stop offset="100%" stop-color="#5c4033" stop-opacity="0.18" />
                       </linearGradient>
-                      <linearGradient id="gradLung" x1="0" y1="0" x2="1" y2="0">
-                        <stop offset="0%" stop-color="#c4b5fd" stop-opacity="0.5"/>
-                        <stop offset="100%" stop-color="#8b5cf6" stop-opacity="0.2"/>
+                      <linearGradient id="skinHighlightGrad" x1="0.5" y1="0" x2="0.5" y2="1">
+                        <stop offset="0%" stop-color="#fff5ee" stop-opacity="0.2" />
+                        <stop offset="35%" stop-color="#fff0e6" stop-opacity="0.08" />
+                        <stop offset="100%" stop-color="transparent" stop-opacity="0" />
+                      </linearGradient>
+                      <radialGradient id="skinJointGrad" cx="50%" cy="50%" r="50%">
+                        <stop offset="0%" stop-color="#ddb896" stop-opacity="0.12" />
+                        <stop offset="100%" stop-color="transparent" stop-opacity="0" />
+                      </radialGradient>
+                      <pattern id="skinPorePattern" width="8" height="8" patternUnits="userSpaceOnUse">
+                        <circle cx="2" cy="2" r="0.35" fill="#f0d4c4" opacity="0.06" />
+                        <circle cx="6" cy="5" r="0.25" fill="#e8c4a8" opacity="0.05" />
+                      </pattern>
+                      <filter id="skinSoftBlur" x="-5%" y="-5%" width="110%" height="110%">
+                        <feGaussianBlur in="SourceGraphic" stdDeviation="0.4" />
+                      </filter>
+                      <filter id="skinSubsurface" x="-10%" y="-10%" width="120%" height="120%">
+                        <feGaussianBlur in="SourceAlpha" stdDeviation="3" result="blur" />
+                        <feOffset in="blur" dx="0" dy="1" result="offsetBlur" />
+                        <feFlood flood-color="#e8a090" flood-opacity="0.15" result="glowColor" />
+                        <feComposite in="glowColor" in2="offsetBlur" operator="in" result="subGlow" />
+                        <feMerge>
+                          <feMergeNode in="subGlow" />
+                          <feMergeNode in="SourceGraphic" />
+                        </feMerge>
+                      </filter>
+                      <linearGradient id="gradBrain" x1="0.3" y1="0" x2="0.8" y2="1">
+                        <stop offset="0%" stop-color="#fbcfe8" stop-opacity="0.75" />
+                        <stop offset="50%" stop-color="#f472b6" stop-opacity="0.55" />
+                        <stop offset="100%" stop-color="#be185d" stop-opacity="0.35" />
+                      </linearGradient>
+                      <linearGradient id="gradLungL" x1="1" y1="0" x2="0" y2="1">
+                        <stop offset="0%" stop-color="#c4b5fd" stop-opacity="0.7" />
+                        <stop offset="100%" stop-color="#6d28d9" stop-opacity="0.25" />
+                      </linearGradient>
+                      <linearGradient id="gradLungR" x1="0" y1="0" x2="1" y2="1">
+                        <stop offset="0%" stop-color="#c4b5fd" stop-opacity="0.7" />
+                        <stop offset="100%" stop-color="#6d28d9" stop-opacity="0.25" />
+                      </linearGradient>
+                      <linearGradient id="gradHeart" x1="0.2" y1="0" x2="0.9" y2="1">
+                        <stop offset="0%" stop-color="#fca5a5" stop-opacity="0.9" />
+                        <stop offset="100%" stop-color="#b91c1c" stop-opacity="0.45" />
                       </linearGradient>
                       <linearGradient id="gradLiver" x1="0" y1="0" x2="1" y2="1">
-                        <stop offset="0%" stop-color="#b45309" stop-opacity="0.55"/>
-                        <stop offset="100%" stop-color="#78350f" stop-opacity="0.3"/>
+                        <stop offset="0%" stop-color="#d97706" stop-opacity="0.65" />
+                        <stop offset="100%" stop-color="#78350f" stop-opacity="0.35" />
                       </linearGradient>
-                      <filter id="organGlow"><feGaussianBlur stdDeviation="1.5" result="b"/><feMerge><feMergeNode in="b"/><feMergeNode in="SourceGraphic"/></feMerge></filter>
+                      <filter id="softGlow" x="-20%" y="-20%" width="140%" height="140%">
+                        <feGaussianBlur stdDeviation="2" result="blur" />
+                        <feMerge>
+                          <feMergeNode in="blur" />
+                          <feMergeNode in="SourceGraphic" />
+                        </feMerge>
+                      </filter>
+                      <filter id="organHoverGlow" x="-30%" y="-30%" width="160%" height="160%">
+                        <feGaussianBlur stdDeviation="3" result="b" />
+                        <feMerge>
+                          <feMergeNode in="b" />
+                          <feMergeNode in="SourceGraphic" />
+                        </feMerge>
+                      </filter>
                     </defs>
-                    <ellipse cx="100" cy="260" rx="78" ry="195" fill="url(#bodyGlow)" />
+
+                    <ellipse cx="120" cy="285" rx="88" ry="210" fill="url(#holoAmbient)" class="ambient-glow" />
 
                     <!-- SKELETAL -->
                     <g id="system-skeletal" class="body-system hidden">
-                      <ellipse class="bone-joint" cx="100" cy="52" rx="22" ry="20"/>
-                      <path class="bone" d="M100,72 L100,95"/>
-                      <path class="ribs" d="M72,118 Q100,108 128,118 M68,138 Q100,128 132,138 M68,158 Q100,148 132,158 M72,178 Q100,168 128,178 M76,198 Q100,188 124,198"/>
-                      <path class="bone" d="M100,95 L100,285"/>
-                      <path class="bone" d="M100,115 L62,175 M100,115 L138,175 M62,175 L48,235 M138,175 L152,235"/>
-                      <path class="bone" d="M100,285 L82,310 L72,420 M100,285 L118,310 L128,420"/>
-                      <circle class="bone-joint" cx="62" cy="175" r="5"/><circle class="bone-joint" cx="138" cy="175" r="5"/>
-                      <circle class="bone-joint" cx="82" cy="310" r="5"/><circle class="bone-joint" cx="118" cy="310" r="5"/>
-                      <path class="spine" d="M100,95 L98,120 L100,145 L98,170 L100,195 L98,220 L100,245 L98,270 L100,295"/>
+                      <ellipse class="bone-joint" cx="120" cy="48" rx="24" ry="22" />
+                      <path class="bone" d="M120,70 L120,98" />
+                      <path class="spine" d="M120,98 L118,125 L120,152 L118,179 L120,206 L118,233 L120,260 L118,287 L120,314" />
+                      <path class="ribs" d="M88,118 Q120,108 152,118 M84,138 Q120,128 156,138 M84,158 Q120,148 156,158 M88,178 Q120,168 152,178 M92,198 Q120,188 148,198" />
+                      <path class="bone" d="M120,98 L120,310" />
+                      <path class="bone" d="M120,118 L78,182 M120,118 L162,182" />
+                      <path class="bone" d="M78,182 L62,248 M162,182 L178,248" />
+                      <path class="bone" d="M120,310 L100,338 L88,455 M120,310 L140,338 L152,455" />
+                      <circle class="bone-joint" cx="78" cy="182" r="5" />
+                      <circle class="bone-joint" cx="162" cy="182" r="5" />
+                      <circle class="bone-joint" cx="100" cy="338" r="5" />
+                      <circle class="bone-joint" cx="140" cy="338" r="5" />
                     </g>
 
                     <!-- MUSCULAR -->
                     <g id="system-muscular" class="body-system hidden">
-                      <path class="muscle" d="M78,108 Q100,102 122,108 L120,195 Q100,200 80,195 Z"/>
-                      <path class="muscle" d="M70,200 Q100,195 130,200 L128,270 Q100,275 72,270 Z" opacity="0.7"/>
-                      <path class="muscle" d="M85,115 L55,175 M115,115 L145,175" stroke-width="8"/>
-                      <path class="muscle" d="M88,290 L75,400 M112,290 L125,400" stroke-width="10"/>
+                      <path class="muscle" d="M94,112 Q120,104 146,112 L144,208 Q120,214 96,208 Z" />
+                      <path class="muscle" d="M88,218 Q120,212 152,218 L150,288 Q120,294 90,288 Z" opacity="0.75" />
+                      <path class="muscle" d="M98,118 L68,188 M142,118 L172,188" stroke-width="9" />
+                      <path class="muscle" d="M102,318 L90,448 M138,318 L150,448" stroke-width="11" />
                     </g>
 
-                    <!-- CIRCULATORY -->
+                    <!-- CIRCULATORY (enhanced vessels) -->
                     <g id="system-circulatory" class="body-system hidden">
-                      <path class="vessel artery" d="M100,155 L100,210 L95,250"/>
-                      <path class="vessel artery" d="M100,155 L85,200 L75,230"/>
-                      <path class="vessel artery" d="M100,155 L115,200 L125,230"/>
-                      <path class="vessel vein" d="M75,230 L70,280 L68,320"/>
-                      <path class="vessel vein" d="M125,230 L130,280 L132,320"/>
-                      <path class="vessel artery" d="M100,95 L100,140"/>
-                      <path class="vessel pulmonary" d="M92,130 L75,115 M108,130 L125,115"/>
-                      <circle class="blood-flow" cx="100" cy="155" r="3"/>
-                      <circle class="blood-flow" cx="100" cy="180" r="2.5"/>
-                      <circle class="blood-flow" cx="88" cy="200" r="2"/>
-                      <circle class="blood-flow" cx="112" cy="200" r="2"/>
+                      <path class="vessel artery main-aorta" d="M118,168 L118,128 Q120,108 128,98" />
+                      <path class="vessel artery" d="M118,168 L118,235 L112,278" />
+                      <path class="vessel artery" d="M118,168 L98,210 L82,248" />
+                      <path class="vessel artery" d="M118,168 L138,210 L158,248" />
+                      <path class="vessel pulmonary" d="M108,155 L88,138 M128,155 L148,138" />
+                      <path class="vessel pulmonary" d="M95,142 L75,125 M145,142 L165,125" />
+                      <path class="vessel vein" d="M82,248 L72,305 L68,355" />
+                      <path class="vessel vein" d="M158,248 L168,305 L172,355" />
+                      <path class="vessel artery branch" d="M118,198 L95,218 M118,198 L141,218" />
+                      <circle class="blood-flow" cx="118" cy="168" r="2.5" />
+                      <circle class="blood-flow" cx="118" cy="195" r="2" />
+                      <circle class="blood-flow" cx="105" cy="215" r="1.8" />
+                      <circle class="blood-flow" cx="131" cy="215" r="1.8" />
                     </g>
 
                     <!-- NERVOUS -->
                     <g id="system-nervous" class="body-system hidden">
-                      <path class="nerve-line" d="M100,52 L100,300"/>
-                      <path class="nerve-line" d="M100,110 L45,185 M100,110 L155,185"/>
-                      <path class="nerve-line" d="M100,280 L70,420 M100,280 L130,420"/>
-                      <circle class="nerve-node" cx="100" cy="52" r="10"/>
-                      <circle class="nerve-node" cx="100" cy="130" r="5"/>
-                      <circle class="nerve-node" cx="100" cy="210" r="5"/>
-                      <circle class="nerve-node" cx="45" cy="185" r="4"/><circle class="nerve-node" cx="155" cy="185" r="4"/>
-                      <path class="nerve-line branch" d="M100,130 Q85,145 78,165 M100,130 Q115,145 122,165"/>
+                      <path class="nerve-line" d="M120,42 L120,320" />
+                      <path class="nerve-line" d="M120,125 L52,198 M120,125 L188,198" />
+                      <path class="nerve-line" d="M120,305 L88,455 M120,305 L152,455" />
+                      <circle class="nerve-node" cx="120" cy="42" r="11" />
+                      <circle class="nerve-node" cx="120" cy="138" r="5" />
+                      <circle class="nerve-node" cx="120" cy="225" r="5" />
+                      <circle class="nerve-node" cx="52" cy="198" r="4" />
+                      <circle class="nerve-node" cx="188" cy="198" r="4" />
+                      <path class="nerve-line branch" d="M120,138 Q102,158 92,178 M120,138 Q138,158 148,178" />
                     </g>
 
-                    <!-- ORGANS -->
+                    <!-- ORGANS — semi-realistic layered anatomy -->
                     <g id="system-organs" class="body-system">
-                      <g class="organ-group" data-target="organ-brain">
-                        <path id="organ-brain" class="organ clickable" filter="url(#organGlow)"
-                          d="M100,32 C118,32 128,44 128,58 C128,72 118,82 100,84 C82,82 72,72 72,58 C72,44 82,32 100,32
-                             M88,55 Q100,48 112,55 M92,48 Q100,42 108,48 M92,68 Q100,74 108,68 M95,62 L105,62"/>
-                        <path class="organ-detail" d="M95,40 Q100,36 105,40" opacity="0.4"/>
-                        <text x="132" y="58" class="organ-label">BRAIN</text>
+                      <!-- Embedded vessels (visible in organ mode) -->
+                      <g id="layer-vessels" class="vessel-layer">
+                        <path class="vessel-inline artery" d="M118,175 L118,128 Q120,112 126,102" opacity="0.5" />
+                        <path class="vessel-inline pulmonary" d="M110,162 L92,148 M126,162 L144,148" opacity="0.45" />
+                        <path class="vessel-inline vein" d="M105,220 L92,265" opacity="0.35" />
+                        <path class="vessel-inline vein" d="M131,220 L144,265" opacity="0.35" />
                       </g>
+
+                      <!-- BRAIN -->
+                      <g class="organ-group" data-target="organ-brain">
+                        <path id="organ-brain" class="organ clickable" fill="url(#gradBrain)"
+                          d="M120,28 C98,28 82,42 80,58 C78,72 84,82 92,88 C88,92 86,98 88,104 C90,112 96,118 104,120
+                             C108,128 112,132 120,134 C128,132 132,128 136,120 C144,118 150,112 152,104 C154,98 152,92 148,88
+                             C156,82 162,72 160,58 C158,42 142,28 120,28 Z
+                             M100,52 Q120,44 140,52 M96,68 Q120,76 144,68
+                             M108,38 Q120,34 132,38" />
+                        <path class="organ-detail" d="M108,118 Q120,124 132,118" opacity="0.35" />
+                        <ellipse class="organ-detail" cx="120" cy="108" rx="14" ry="8" opacity="0.25" />
+                        <text x="168" y="72" class="organ-label">BRAIN</text>
+                        <line class="label-line" x1="152" y1="68" x2="165" y2="70" />
+                      </g>
+
+                      <!-- TRACHEA + bronchi -->
                       <g class="organ-group" data-target="organ-trachea">
                         <path id="organ-trachea" class="organ clickable"
-                          d="M97,88 L97,118 L103,118 L103,88 Z M94,92 L94,96 M106,92 L106,96 M94,108 L94,112 M106,108 L106,112"/>
-                        <text x="108" y="105" class="organ-label">TRACHEA</text>
+                          d="M114,92 L114,138 L126,138 L126,92 Z" />
+                        <path class="organ-detail trachea-ring" d="M114,98 L126,98 M114,108 L126,108 M114,118 L126,118 M114,128 L126,128" />
+                        <path class="organ-detail" d="M120,138 L108,152 M120,138 L132,152" opacity="0.5" />
+                        <text x="132" y="118" class="organ-label">TRACHEA</text>
                       </g>
+
+                      <!-- THYROID -->
+                      <g class="organ-group" data-target="organ-thyroid">
+                        <path id="organ-thyroid" class="organ clickable"
+                          d="M104,90 Q120,84 136,90 Q132,98 120,100 Q108,98 104,90 Z
+                             M108,92 Q120,88 132,92" />
+                        <text x="148" y="96" class="organ-label">THYROID</text>
+                      </g>
+
+                      <!-- THYMUS -->
+                      <g class="organ-group" data-target="organ-thymus">
+                        <path id="organ-thymus" class="organ clickable"
+                          d="M110,118 Q120,110 130,118 L128,132 Q120,138 112,132 Z" />
+                        <text x="142" y="128" class="organ-label">THYMUS</text>
+                      </g>
+
+                      <!-- LEFT LUNG (cardiac notch) -->
                       <g class="organ-group" data-target="organ-lungs-l">
-                        <path id="organ-lungs-l" class="organ clickable" fill="url(#gradLung)"
-                          d="M92,108 C76,108 60,122 58,148 C56,172 68,192 90,196 L92,108
-                             M70,135 Q82,128 88,140 M65,160 Q78,152 86,165"/>
-                        <text x="48" y="158" class="organ-label align-right">LUNG L</text>
+                        <path id="organ-lungs-l" class="organ clickable" fill="url(#gradLungL)"
+                          d="M114,108 C96,108 78,118 72,138 C66,158 68,182 76,202 C82,218 94,228 108,232 L114,108
+                             M114,108 L114,175 C108,168 100,158 98,145
+                             M82,145 Q94,138 102,152 M78,168 Q90,162 98,178 M86,192 Q98,188 106,202" />
+                        <text x="52" y="168" class="organ-label align-right">LEFT LUNG</text>
+                        <line class="label-line" x1="72" y1="165" x2="58" y2="166" />
                       </g>
+
+                      <!-- RIGHT LUNG -->
                       <g class="organ-group" data-target="organ-lungs-r">
-                        <path id="organ-lungs-r" class="organ clickable" fill="url(#gradLung)"
-                          d="M108,108 C124,108 140,122 142,148 C144,172 132,192 110,196 L108,108
-                             M130,135 Q118,128 112,140 M135,160 Q122,152 114,165"/>
-                        <text x="152" y="158" class="organ-label">LUNG R</text>
+                        <path id="organ-lungs-r" class="organ clickable" fill="url(#gradLungR)"
+                          d="M126,108 C144,108 162,118 168,138 C174,158 172,182 164,202 C158,218 146,228 132,232 L126,108
+                             M126,108 L126,175 C132,168 140,158 142,145
+                             M158,145 Q146,138 138,152 M162,168 Q150,162 142,178 M154,192 Q142,188 134,202" />
+                        <text x="188" y="168" class="organ-label">RIGHT LUNG</text>
+                        <line class="label-line" x1="168" y1="165" x2="182" y2="166" />
                       </g>
+
+                      <!-- HEART -->
                       <g class="organ-group" data-target="organ-heart">
                         <path id="organ-heart" class="organ clickable" fill="url(#gradHeart)"
-                          d="M100,138 C94,128 84,132 84,144 C84,158 100,178 100,178 C100,178 116,158 116,144 C116,132 106,128 100,138
-                             M96,132 L96,122 M104,132 L104,122 M100,148 L100,155"/>
-                        <text x="120" y="128" class="organ-label">HEART</text>
+                          d="M128,152 C138,142 148,148 148,162 C148,178 132,202 120,212 C108,202 92,178 92,162
+                             C92,148 102,142 112,152 C116,138 124,138 128,152 Z
+                             M108,158 L108,148 M132,158 L132,148 M120,168 L120,178" />
+                        <path class="organ-detail" d="M120,148 Q128,142 136,148" opacity="0.4" />
+                        <text x="158" y="148" class="organ-label">HEART</text>
+                        <line class="label-line" x1="148" y1="145" x2="155" y2="146" />
                       </g>
+
+                      <!-- LIVER -->
                       <g class="organ-group" data-target="organ-liver">
                         <path id="organ-liver" class="organ clickable" fill="url(#gradLiver)"
-                          d="M72,198 L112,198 C120,198 126,208 122,222 C118,238 88,244 72,232 C66,222 68,208 72,198
-                             M108,205 L118,210 L115,218"/>
-                        <text x="58" y="222" class="organ-label align-right">LIVER</text>
+                          d="M68,208 C58,208 52,218 54,232 C56,248 72,262 98,268 C118,272 132,262 138,248
+                             C142,232 136,218 124,212 L108,208 C92,206 78,206 68,208 Z
+                             M118,215 L132,222 L128,235" />
+                        <text x="42" y="242" class="organ-label align-right">LIVER</text>
                       </g>
+
                       <g class="organ-group" data-target="organ-gallbladder">
                         <path id="organ-gallbladder" class="organ clickable"
-                          d="M118,218 C124,218 128,224 126,232 C124,238 118,240 114,234 C112,228 114,220 118,218"/>
-                        <text x="132" y="232" class="organ-label">GALL</text>
+                          d="M138,238 C146,236 152,242 150,252 C148,260 140,264 134,258 C130,250 132,240 138,238 Z" />
+                        <text x="158" y="252" class="organ-label">GALLBLADDER</text>
                       </g>
+
                       <g class="organ-group" data-target="organ-stomach">
                         <path id="organ-stomach" class="organ clickable"
-                          d="M104,208 C126,206 138,226 132,252 C126,278 104,282 94,268 C84,252 88,212 104,208
-                             M110,220 Q118,235 115,250"/>
-                        <text x="138" y="242" class="organ-label">STOMACH</text>
+                          d="M128,212 C152,208 168,228 162,258 C156,288 132,298 118,288 C102,275 108,228 128,212 Z
+                             M135,228 Q148,245 142,262" />
+                        <text x="172" y="252" class="organ-label">STOMACH</text>
                       </g>
+
                       <g class="organ-group" data-target="organ-pancreas">
                         <path id="organ-pancreas" class="organ clickable"
-                          d="M78,248 L118,245 L120,252 L78,255 Z"/>
-                        <text x="100" y="243" class="organ-label align-center">PANCREAS</text>
+                          d="M82,258 L148,252 L152,262 L84,268 Z" />
+                        <text x="120" y="252" class="organ-label align-center">PANCREAS</text>
                       </g>
+
                       <g class="organ-group" data-target="organ-spleen">
                         <path id="organ-spleen" class="organ clickable"
-                          d="M68,228 C62,228 58,236 60,246 C62,256 70,260 76,252 C80,244 74,228 68,228"/>
-                        <text x="48" y="248" class="organ-label align-right">SPLEEN</text>
+                          d="M72,238 C64,236 58,244 60,256 C62,268 72,274 80,266 C86,256 80,240 72,238 Z" />
+                        <text x="48" y="258" class="organ-label align-right">SPLEEN</text>
                       </g>
+
                       <g class="organ-group" data-target="organ-kidney-l">
                         <path id="organ-kidney-l" class="organ clickable"
-                          d="M80,238 C74,238 70,244 70,252 C70,262 76,268 82,266 C88,262 88,244 80,238
-                             M76,248 C78,252 80,254 82,252"/>
-                        <text x="58" y="258" class="organ-label align-right">KIDNEY</text>
+                          d="M88,268 C80,266 74,274 76,286 C78,298 88,304 96,298 C102,290 98,272 88,268 Z
+                             M84,282 C88,288 92,290 96,286" />
+                        <text x="58" y="292" class="organ-label align-right">KIDNEY</text>
                       </g>
+
                       <g class="organ-group" data-target="organ-kidney-r">
                         <path id="organ-kidney-r" class="organ clickable"
-                          d="M120,240 C126,240 130,246 130,254 C130,264 124,270 118,268 C112,264 112,246 120,240
-                             M124,250 C122,254 120,256 118,254"/>
-                        <text x="142" y="260" class="organ-label">KIDNEY</text>
+                          d="M152,272 C160,270 166,278 164,290 C162,302 152,308 144,302 C138,294 142,276 152,272 Z
+                             M156,286 C152,292 148,294 144,290" />
+                        <text x="182" y="296" class="organ-label">KIDNEY</text>
                       </g>
+
                       <g class="organ-group" data-target="organ-small-intestine">
                         <path id="organ-small-intestine" class="organ clickable"
-                          d="M78,268 C70,268 65,278 68,298 C72,318 88,328 100,328 C112,328 128,318 132,298 C135,278 130,268 122,268
-                             M75,285 Q100,278 125,285 M78,305 Q100,298 122,305 M82,318 Q100,312 118,318"/>
-                        <text x="100" y="342" class="organ-label align-center">SMALL INT.</text>
+                          d="M78,298 C68,298 62,312 66,332 C72,352 92,368 120,372 C148,368 168,352 174,332
+                             C178,312 172,298 162,298 C148,298 132,308 120,312 C108,308 92,298 78,298 Z
+                             M75,318 Q120,308 165,318 M80,342 Q120,332 160,342 M88,358 Q120,352 152,358" />
+                        <text x="120" y="388" class="organ-label align-center">SMALL INTESTINE</text>
                       </g>
+
                       <g class="organ-group" data-target="organ-large-intestine">
                         <path id="organ-large-intestine" class="organ clickable"
-                          d="M72,318 L128,318 C138,318 142,328 140,348 C138,368 120,378 100,380 C80,378 62,368 60,348 C58,328 62,318 72,318
-                             M68,335 L132,335 M70,355 L130,355"/>
-                        <text x="100" y="395" class="organ-label align-center">LARGE INT.</text>
+                          d="M72,368 L168,368 C180,368 186,378 184,398 C180,418 158,432 120,436
+                             C82,432 60,418 56,398 C54,378 60,368 72,368 Z
+                             M68,388 L172,388 M70,408 L170,408" />
+                        <text x="120" y="452" class="organ-label align-center">LARGE INTESTINE</text>
                       </g>
+
                       <g class="organ-group" data-target="organ-bladder">
                         <path id="organ-bladder" class="organ clickable"
-                          d="M88,388 C82,388 78,396 80,406 C82,416 90,420 100,420 C110,420 118,416 120,406 C122,396 118,388 112,388 Z"/>
-                        <text x="100" y="432" class="organ-label align-center">BLADDER</text>
+                          d="M98,438 C90,438 84,448 88,460 C92,472 108,478 120,478 C132,478 148,472 152,460
+                             C156,448 150,438 142,438 Z" />
+                        <text x="120" y="498" class="organ-label align-center">BLADDER</text>
+                      </g>
+
+                      <!-- REPRODUCTIVE SYSTEM -->
+                      <g class="organ-group" data-target="organ-reproductive">
+                        <path id="organ-reproductive" class="organ clickable"
+                          d="M120,458 C112,458 106,468 108,478 C110,488 118,492 120,492 C122,492 130,488 132,478
+                             C134,468 128,458 120,458 Z M118,492 L118,508 M122,492 L122,508" />
+                        <text x="148" y="488" class="organ-label">REPRODUCTIVE</text>
                       </g>
                     </g>
 
-                    <g id="layer-labels">
-                      <!-- labels are inside organ groups -->
-                    </g>
+                    <!-- Realistic skin shell — layered translucent epidermis -->
+                    <g id="layer-skin" class="skin-layer">
+                      <!-- Depth wireframe (under skin) -->
+                      <path id="layer-outline" class="body-depth"
+                        d="M120,12 C90,12 72,34 72,58 C72,76 80,92 94,100
+                           C86,108 80,120 80,132 C62,138 44,158 38,182 C34,208 40,238 52,262
+                           C58,278 68,288 78,292 L78,318 C74,368 68,448 62,528 L98,528
+                           C100,468 108,398 118,358 L120,348 L122,358 C132,398 140,468 142,528 L178,528
+                           C172,448 166,368 162,318 L162,292 C172,288 182,278 188,262
+                           C200,238 206,208 202,182 C196,158 178,138 160,132 C160,120 154,108 146,100
+                           C160,92 168,76 168,58 C168,34 150,12 120,12 Z" />
 
-                    <path id="layer-outline" class="body-outline"
-                      d="M100,18 C78,18 66,38 66,58 C66,78 76,98 100,98 C124,98 134,78 134,58 C134,38 122,18 100,18
-                         M66,78 L36,148 L26,248 L48,248 L58,148 L66,148
-                         M134,78 L164,148 L174,248 L152,248 L142,148 L134,148
-                         M66,148 L66,298 L56,488 L88,488 L100,328 L112,488 L144,488 L134,298 L134,148"/>
+                      <!-- Main body silhouette -->
+                      <path class="body-shell body-shell-base" fill="url(#skinBaseGrad)" filter="url(#skinSubsurface)"
+                        d="M120,14 C94,14 78,32 76,52 C74,68 80,82 90,90 C84,96 80,106 80,118
+                           C66,124 50,142 44,168 C38,198 42,232 54,258 C60,272 70,282 80,286
+                           L80,310 C76,365 70,442 66,522 L100,522 C102,465 110,395 118,355
+                           L120,342 L122,355 C130,395 138,465 140,522 L174,522
+                           C170,442 164,365 160,310 L160,286 C170,282 180,272 186,258
+                           C198,232 202,198 196,168 C190,142 174,124 160,118 C160,106 156,96 150,90
+                           C160,82 166,68 164,52 C162,32 146,14 120,14 Z" />
+
+                      <!-- Head & face zone -->
+                      <ellipse class="skin-zone skin-head" cx="120" cy="52" rx="28" ry="34" fill="url(#skinHeadGrad)" />
+
+                      <!-- Lateral shadow (limbs & torso sides) -->
+                      <path class="skin-shadow" fill="url(#skinShadowGrad)"
+                        d="M120,14 C94,14 78,32 76,52 C74,68 80,82 90,90 C84,96 80,106 80,118
+                           C66,124 50,142 44,168 C38,198 42,232 54,258 C60,272 70,282 80,286
+                           L80,310 C76,365 70,442 66,522 L100,522 C102,465 110,395 118,355
+                           L120,342 L122,355 C130,395 138,465 140,522 L174,522
+                           C170,442 164,365 160,310 L160,286 C170,282 180,272 186,258
+                           C198,232 202,198 196,168 C190,142 174,124 160,118 C160,106 156,96 150,90
+                           C160,82 166,68 164,52 C162,32 146,14 120,14 Z" />
+
+                      <!-- Front highlights (chest, abdomen, thighs) -->
+                      <path class="skin-highlight" fill="url(#skinHighlightGrad)"
+                        d="M120,118 C108,118 98,128 96,145 C94,175 98,220 102,268 C104,300 108,328 112,355
+                           L120,348 L128,355 C132,328 136,300 138,268 C142,220 146,175 144,145
+                           C142,128 132,118 120,118 Z" opacity="0.85" />
+
+                      <!-- Joint shading: shoulders, elbows, knees -->
+                      <ellipse class="skin-joint" cx="52" cy="248" rx="14" ry="18" fill="url(#skinJointGrad)" />
+                      <ellipse class="skin-joint" cx="188" cy="248" rx="14" ry="18" fill="url(#skinJointGrad)" />
+                      <ellipse class="skin-joint" cx="92" cy="418" rx="12" ry="16" fill="url(#skinJointGrad)" />
+                      <ellipse class="skin-joint" cx="148" cy="418" rx="12" ry="16" fill="url(#skinJointGrad)" />
+                      <ellipse class="skin-joint" cx="120" cy="128" rx="22" ry="10" fill="url(#skinJointGrad)" opacity="0.6" />
+
+                      <!-- Subtle pore / skin grain texture -->
+                      <path class="body-shell-texture" fill="url(#skinPorePattern)"
+                        d="M120,14 C94,14 78,32 76,52 C74,68 80,82 90,90 C84,96 80,106 80,118
+                           C66,124 50,142 44,168 C38,198 42,232 54,258 C60,272 70,282 80,286
+                           L80,310 C76,365 70,442 66,522 L100,522 C102,465 110,395 118,355
+                           L120,342 L122,355 C130,395 138,465 140,522 L174,522
+                           C170,442 164,365 160,310 L160,286 C170,282 180,272 186,258
+                           C198,232 202,198 196,168 C190,142 174,124 160,118 C160,106 156,96 150,90
+                           C160,82 166,68 164,52 C162,32 146,14 120,14 Z" opacity="0.55" />
+
+                      <!-- Anatomical surface landmarks -->
+                      <g class="skin-landmarks" aria-hidden="true">
+                        <path class="skin-line" d="M98,108 Q120,118 142,108" />
+                        <path class="skin-line" d="M108,118 L108,128 M132,118 L132,128" />
+                        <path class="skin-line sternum" d="M120,128 L120,268" />
+                        <path class="skin-line" d="M120,128 Q108,135 100,145 M120,128 Q132,135 140,145" />
+                        <path class="skin-line" d="M120,295 Q100,305 92,318 M120,295 Q140,305 148,318" />
+                        <ellipse class="skin-line navel" cx="120" cy="278" rx="3" ry="4" />
+                        <path class="skin-line" d="M90,90 Q80,175 78,258 M150,90 Q160,175 162,258" opacity="0.5" />
+                        <path class="skin-line" d="M108,355 Q120,362 132,355" opacity="0.4" />
+                      </g>
+
+                      <!-- Outer contour — soft epidermal edge -->
+                      <path class="body-shell-edge"
+                        d="M120,14 C94,14 78,32 76,52 C74,68 80,82 90,90 C84,96 80,106 80,118
+                           C66,124 50,142 44,168 C38,198 42,232 54,258 C60,272 70,282 80,286
+                           L80,310 C76,365 70,442 66,522 L100,522 C102,465 110,395 118,355
+                           L120,342 L122,355 C130,395 138,465 140,522 L174,522
+                           C170,442 164,365 160,310 L160,286 C170,282 180,272 186,258
+                           C198,232 202,198 196,168 C190,142 174,124 160,118 C160,106 156,96 150,90
+                           C160,82 166,68 164,52 C162,32 146,14 120,14 Z" />
+                    </g>
                   </svg>
+                    </div>
+                  </div>
                 </div>
+
+                <div class="callouts-col callouts-right" id="calloutsRight" aria-label="Right organ call-outs"></div>
+                <svg class="connector-overlay" id="connectorSvg" aria-hidden="true"></svg>
               </div>
-              
-              <!-- Scanning Effect -->
-              <div class="scanner-line"></div>
-              
-              <!-- Tooltips Overlay -->
-              <div id="organTooltip" class="organ-tooltip"></div>
+
+              <div class="scanner-line" aria-hidden="true"></div>
+              <div id="organTooltip" class="organ-tooltip" role="tooltip"></div>
             </div>
 
-            <!-- Right: Stats & Logs -->
-            <div class="sim-sidebar">
-              <div class="sim-card">
-                <div class="card-title">VITAL SIGNS</div>
+            <!-- RIGHT: Vitals, logs, organ info -->
+            <div class="sim-sidebar sim-sidebar-right">
+              <div class="sim-card glass-panel">
+                <div class="card-title"><i class="bx bx-pulse"></i> Vital Signs</div>
                 <div class="stat-item">
-                  <div class="stat-lbl">HEART RATE</div>
+                  <div class="stat-lbl">Heart Rate</div>
                   <div class="stat-row">
                     <div class="stat-val c1" id="hrVal">72</div>
                     <div class="stat-unit">BPM</div>
                   </div>
-                  <div class="stat-bar"><div class="stat-bar-fill c1" style="width: 72%"></div></div>
+                  <div class="stat-bar"><div class="stat-bar-fill c1" id="hrBar" style="width: 72%"></div></div>
                 </div>
                 <div class="stat-item">
-                  <div class="stat-lbl">BODY TEMP</div>
+                  <div class="stat-lbl">Body Temperature</div>
                   <div class="stat-row">
                     <div class="stat-val c2" id="tempVal">36.6</div>
                     <div class="stat-unit">°C</div>
                   </div>
-                  <div class="stat-bar"><div class="stat-bar-fill c2" style="width: 90%"></div></div>
+                  <div class="stat-bar"><div class="stat-bar-fill c2" id="tempBar" style="width: 90%"></div></div>
                 </div>
                 <div class="stat-item">
-                  <div class="stat-lbl">OXYGEN LEVEL</div>
+                  <div class="stat-lbl">Oxygen Saturation</div>
                   <div class="stat-row">
                     <div class="stat-val c3" id="o2Val">98</div>
                     <div class="stat-unit">%</div>
                   </div>
-                  <div class="stat-bar"><div class="stat-bar-fill c3" style="width: 98%"></div></div>
+                  <div class="stat-bar"><div class="stat-bar-fill c3" id="o2Bar" style="width: 98%"></div></div>
                 </div>
                 <div class="stat-item">
-                  <div class="stat-lbl">RESPIRATORY RATE</div>
+                  <div class="stat-lbl">Respiratory Rate</div>
                   <div class="stat-row">
                     <div class="stat-val c4" id="rrVal">14</div>
                     <div class="stat-unit">/min</div>
                   </div>
-                  <div class="stat-bar"><div class="stat-bar-fill c4" style="width: 47%"></div></div>
+                  <div class="stat-bar"><div class="stat-bar-fill c4" id="rrBar" style="width: 47%"></div></div>
                 </div>
-                <div class="stat-item">
-                  <div class="stat-lbl">BLOOD PRESSURE</div>
+                <div class="stat-item stat-item-last">
+                  <div class="stat-lbl">Blood Pressure</div>
                   <div class="stat-row">
                     <div class="stat-val c5" id="bpVal">120/80</div>
                     <div class="stat-unit">mmHg</div>
@@ -382,13 +593,21 @@
                 </div>
               </div>
 
-              <div class="sim-card">
-                <div class="card-title">OBSERVATION LOG</div>
+              <div class="sim-card glass-panel">
+                <div class="card-title"><i class="bx bx-notepad"></i> Observation Log</div>
                 <div class="obs-log" id="obsLog">
-                  <!-- Log entries will appear here -->
                   <div class="obs-item">
-                    <div class="obs-time">00:01</div>
-                    <div class="obs-text">System initialized. Waiting for input.</div>
+                    <div class="obs-time">00:00</div>
+                    <div class="obs-text">Holographic anatomy engine initialized.</div>
+                  </div>
+                </div>
+              </div>
+
+              <div class="sim-card glass-panel sim-card-info">
+                <div class="card-title"><i class="bx bx-info-circle"></i> Organ Information</div>
+                <div id="organInfo" class="info-box info-box-scroll">
+                  <div class="info-placeholder">
+                    Hover or click an organ on the hologram, or choose one from the index, to view structure, function, and connected systems.
                   </div>
                 </div>
               </div>
@@ -398,6 +617,7 @@
       </div>
     </div>
 
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.5/gsap.min.js"></script>
     <script src="js/main.js"></script>
     <script src="js/biology.js"></script>
   </body>

@@ -1,0 +1,401 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Eksperika - Chemistry Lab</title>
+    <link rel="stylesheet" href="css/boxicons.min.css" />
+    <link rel="stylesheet" href="css/global.css" />
+    <link rel="stylesheet" href="css/chemistry.css" />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Space+Grotesk:wght@400;500;600;700&family=Space+Mono:wght@400;700&display=swap"
+      rel="stylesheet"
+    />
+  </head>
+  <body class="chemistry-page">
+    <div class="cursor" id="cursor"></div>
+    <div class="cursor-dot" id="cursorDot"></div>
+    <div class="grid-bg"></div>
+    <div class="scan-line"></div>
+
+    <div class="app">
+      <aside class="sidebar">
+        <a href="dashboard.html" class="sidebar-logo">
+          <div class="sidebar-logo-icon">
+            <i class="bx bxs-flask nav-icon"></i>
+          </div>
+          <div class="sidebar-logo-text">
+            EKSPERIKA
+            <span>Lab OS v3.0</span>
+          </div>
+        </a>
+
+        <div class="sidebar-section-label">Navigation</div>
+
+        <nav class="sidebar-nav">
+          <a href="dashboard.html" class="nav-item">
+            <i class="bx bxs-home nav-icon"></i>
+            <span>Home</span>
+          </a>
+          <a href="chemistry.html" class="nav-item active">
+            <i class="bx bxs-flask nav-icon"></i>
+            <span>Chemistry Lab</span>
+          </a>
+          <a href="physic.html" class="nav-item">
+            <i class="bx bxs-bolt-circle nav-icon"></i>
+            <span>Physics Lab</span>
+          </a>
+          <a href="#" class="nav-item">
+            <i class="bx bx-dna nav-icon"></i>
+            <span>Biology Lab</span>
+          </a>
+          <a href="#" class="nav-item">
+            <i class="bx bxs-book-open nav-icon"></i>
+            <span>Challenge</span>
+          </a>
+        </nav>
+      </aside>
+
+      <div class="main">
+        <header class="topbar">
+          <div>
+            <div class="topbar-title">CHEMISTRY LAB</div>
+            <div class="topbar-breadcrumb">
+              <a href="dashboard.html">HOME /</a>
+              <a href="chemistry.html">CHEMISTRY</a> / REACTION CHAMBER
+            </div>
+          </div>
+        </header>
+
+        <div class="content chemistry-content">
+          <div class="page-header">
+                  <div>
+                    <div class="module-tag">
+                      <span class="module-dot"></span>
+                      CHEMISTRY MODULE &middot; ACID-BASE REACTIONS
+                    </div>
+                    <div class="page-title">CHEMISTRY <span class="t-cyan">LAB</span></div>
+                    <div class="page-sub">Realtime chemical reaction simulation &middot; pH Level &middot; Temperature &middot; Gas Output</div>
+                  </div>
+                  <div class="page-actions">
+                    <button class="btn btn-yellow btn-sm" type="button" onclick="addLog('Challenge mode coming soon!','warn')">
+                      <i class="bx bxs-trophy"></i>
+                      Challenge Mode
+                    </button>
+                    <button class="btn btn-primary btn-sm" type="button" onclick="runMix()">
+                      <i class="bx bx-play"></i>
+                      Run Experiment
+                    </button>
+                  </div>
+                </div>
+          
+                <div class="lab-layout">
+                  <div class="controls-panel">
+                    <section class="panel-card ctrl-section">
+                      <div class="ctrl-label">
+                        <span class="ctrl-label-icon"><i class="bx bxs-vial"></i></span>
+                        <span class="ctrl-title">Reaction Type</span>
+                      </div>
+                      <div class="ctrl-section-body">
+                        <div class="btn-group">
+                          <button class="tgl-btn active" type="button" data-rxn="acid-base" onclick="setRxn(this)">Acid Base</button>
+                          <button class="tgl-btn" type="button" data-rxn="ph-test" onclick="setRxn(this)">pH Test</button>
+                          <button class="tgl-btn" type="button" data-rxn="gas-reaction" onclick="setRxn(this)">Gas RXN</button>
+                        </div>
+                      </div>
+                    </section>
+          
+                    <section class="panel-card ctrl-section">
+                      <div class="ctrl-label">
+                        <span class="ctrl-label-icon"><i class="bx bxs-droplet-half"></i></span>
+                        <span class="ctrl-title">Chemical Source</span>
+                      </div>
+                      <div class="ctrl-section-body">
+                        <div class="reagent-grid">
+                          <button class="reagent-btn" type="button" data-chem="acid" onclick="selectChem(this)">
+                            <span class="reagent-icon"><i class="bx bxs-vial"></i></span>Acid
+                          </button>
+                          <button class="reagent-btn" type="button" data-chem="base" onclick="selectChem(this)">
+                            <span class="reagent-icon"><i class="bx bx-test-tube"></i></span>Base
+                          </button>
+                          <button class="reagent-btn" type="button" data-chem="indicator" onclick="selectChem(this)">
+                            <span class="reagent-icon"><i class="bx bxs-eyedropper"></i></span>Indicator
+                          </button>
+                          <button class="reagent-btn" type="button" data-chem="water" onclick="selectChem(this)">
+                            <span class="reagent-icon"><i class="bx bx-water"></i></span>Water
+                          </button>
+                        </div>
+                      </div>
+                    </section>
+          
+                    <section class="panel-card ctrl-section">
+                      <div class="ctrl-label">
+                        <span class="ctrl-label-icon"><i class="bx bx-slider-alt"></i></span>
+                        <span class="ctrl-title">Parameters</span>
+                      </div>
+                      <div class="ctrl-section-body">
+                        <div class="slider-wrap">
+                          <div class="slider-info">
+                            <span class="slider-lbl">Concentration</span>
+                            <div class="slider-val-wrap"><span class="slider-val" id="sv-conc">5.0 mol/L</span></div>
+                          </div>
+                          <input type="range" id="sl-conc" min="0" max="100" value="50" oninput="onConc(this)" />
+                        </div>
+                        <div class="slider-wrap">
+                          <div class="slider-info">
+                            <span class="slider-lbl">Temperature</span>
+                            <div class="slider-val-wrap">
+                              <span class="slider-val" id="sv-temp">25&deg;C</span>
+                              <span class="status-pill pill-low" id="sp-temp">LOW</span>
+                            </div>
+                          </div>
+                          <input type="range" id="sl-temp" min="0" max="100" value="25" oninput="onTemp(this)" />
+                        </div>
+                        <div class="slider-wrap">
+                          <div class="slider-info">
+                            <span class="slider-lbl">Strength</span>
+                            <div class="slider-val-wrap"><span class="slider-val" id="sv-str">50%</span></div>
+                          </div>
+                          <input type="range" id="sl-str" min="0" max="100" value="50" oninput="onStr(this)" />
+                        </div>
+                      </div>
+                    </section>
+          
+                    <section class="panel-card ctrl-section">
+                      <div class="ctrl-label">
+                        <span class="ctrl-label-icon"><i class="bx bx-math"></i></span>
+                        <span class="ctrl-title">Reaction Formula</span>
+                      </div>
+                      <div class="ctrl-section-body">
+                        <div class="formula-box" id="formula-box">
+                          <div class="formula-head">CONCEPT FORMULA</div>
+                          <div class="formula-line"><span class="f-hl">Acid</span> <span class="f-eq">+</span> <span class="f-hl">Base</span> <span class="f-eq">&rarr;</span> Salt <span class="f-eq">+</span> H<sub>2</sub>O</div>
+                          <div class="formula-head" style="margin-top:6px">ION REACTION</div>
+                          <div class="formula-line"><span class="f-hl">H+</span> <span class="f-eq">+</span> <span class="f-hl">OH-</span> <span class="f-eq">&rarr;</span> H<sub>2</sub>O</div>
+                        </div>
+                      </div>
+                    </section>
+          
+                    <section class="panel-card ctrl-section">
+                      <div class="ctrl-label">
+                        <span class="ctrl-label-icon"><i class="bx bxs-bulb"></i></span>
+                        <span class="ctrl-title">Guided Hint</span>
+                      </div>
+                      <div class="ctrl-section-body">
+                        <div class="hint-box">
+                          <div class="hint-head">NEXT STEP</div>
+                          <div class="hint-body" id="hint-body">Select a chemical source to begin.</div>
+                        </div>
+                      </div>
+                    </section>
+                  </div>
+          
+                  <section class="chamber-area">
+                    <div class="chamber-topbar">
+                      <div class="sdot"></div>
+                      <div class="sdot"></div>
+                      <div class="sdot"></div>
+                      <div class="chamber-title">Chemical Reaction Chamber &mdash; Realtime</div>
+                      <div class="chamber-badge" id="mode-badge">ACID BASE MODE</div>
+                    </div>
+          
+                    <div class="canvas-wrap">
+                      <div class="brk brk-tl"></div><div class="brk brk-tr"></div>
+                      <div class="brk brk-bl"></div><div class="brk brk-br"></div>
+                      <div class="ch ch-h"></div><div class="ch ch-v"></div>
+                      <div class="mol-field" id="mol-field"></div>
+          
+                      <div class="exp-stage">
+                        <div class="bottles-row">
+                          <div class="bottle-wrap" id="bot-acid" onclick="selectChem2('acid')">
+                            <svg class="bottle-svg" width="34" height="66" viewBox="0 0 34 66" aria-hidden="true">
+                              <rect x="11" y="0" width="12" height="9" rx="2" fill="#0a1e35" stroke="rgba(34,211,238,0.3)" stroke-width="1"/>
+                              <path d="M7 9 L4 20 L4 60 Q4 64 8 64 L26 64 Q30 64 30 60 L30 20 L27 9 Z" fill="rgba(255,61,90,0.12)" stroke="rgba(255,61,90,0.5)" stroke-width="1.2"/>
+                              <text x="17" y="46" text-anchor="middle" font-size="8" fill="rgba(255,61,90,0.8)" font-family="monospace">HCl</text>
+                              <rect x="4" y="48" width="26" height="11" rx="1" fill="rgba(255,61,90,0.2)"/>
+                              <text x="17" y="57" text-anchor="middle" font-size="5.5" fill="rgba(255,61,90,0.9)" font-family="monospace">ACID</text>
+                            </svg>
+                            <div class="bottle-lbl">ACID</div>
+                            <div class="pour-stream" id="ps-acid" style="background:rgba(255,61,90,0.7)"></div>
+                          </div>
+                          <div class="bottle-wrap" id="bot-base" onclick="selectChem2('base')">
+                            <svg class="bottle-svg" width="34" height="66" viewBox="0 0 34 66" aria-hidden="true">
+                              <rect x="11" y="0" width="12" height="9" rx="2" fill="#0a1e35" stroke="rgba(34,211,238,0.3)" stroke-width="1"/>
+                              <path d="M7 9 L4 20 L4 60 Q4 64 8 64 L26 64 Q30 64 30 60 L30 20 L27 9 Z" fill="rgba(139,92,246,0.12)" stroke="rgba(139,92,246,0.5)" stroke-width="1.2"/>
+                              <text x="17" y="44" text-anchor="middle" font-size="7" fill="rgba(167,139,250,0.86)" font-family="monospace">NaOH</text>
+                              <rect x="4" y="48" width="26" height="11" rx="1" fill="rgba(139,92,246,0.2)"/>
+                              <text x="17" y="57" text-anchor="middle" font-size="5.5" fill="rgba(167,139,250,0.92)" font-family="monospace">BASE</text>
+                            </svg>
+                            <div class="bottle-lbl">BASE</div>
+                            <div class="pour-stream" id="ps-base" style="background:rgba(139,92,246,0.7)"></div>
+                          </div>
+                          <div class="bottle-wrap" id="bot-indicator" onclick="selectChem2('indicator')">
+                            <svg class="bottle-svg" width="34" height="66" viewBox="0 0 34 66" aria-hidden="true">
+                              <rect x="11" y="0" width="12" height="9" rx="2" fill="#0a1e35" stroke="rgba(34,211,238,0.3)" stroke-width="1"/>
+                              <path d="M7 9 L4 20 L4 60 Q4 64 8 64 L26 64 Q30 64 30 60 L30 20 L27 9 Z" fill="rgba(251,191,36,0.12)" stroke="rgba(251,191,36,0.5)" stroke-width="1.2"/>
+                              <text x="17" y="44" text-anchor="middle" font-size="6" fill="rgba(251,191,36,0.88)" font-family="monospace">pH IND</text>
+                              <rect x="4" y="48" width="26" height="11" rx="1" fill="rgba(251,191,36,0.18)"/>
+                              <text x="17" y="57" text-anchor="middle" font-size="5" fill="rgba(251,191,36,0.92)" font-family="monospace">IND</text>
+                            </svg>
+                            <div class="bottle-lbl">IND.</div>
+                            <div class="pour-stream" id="ps-indicator" style="background:rgba(251,191,36,0.7)"></div>
+                          </div>
+                          <div class="bottle-wrap" id="bot-water" onclick="selectChem2('water')">
+                            <svg class="bottle-svg" width="34" height="66" viewBox="0 0 34 66" aria-hidden="true">
+                              <rect x="11" y="0" width="12" height="9" rx="2" fill="#0a1e35" stroke="rgba(34,211,238,0.3)" stroke-width="1"/>
+                              <path d="M7 9 L4 20 L4 60 Q4 64 8 64 L26 64 Q30 64 30 60 L30 20 L27 9 Z" fill="rgba(79,195,247,0.12)" stroke="rgba(79,195,247,0.4)" stroke-width="1.2"/>
+                              <text x="17" y="46" text-anchor="middle" font-size="9" fill="rgba(79,195,247,0.85)" font-family="monospace">H2O</text>
+                              <rect x="4" y="48" width="26" height="11" rx="1" fill="rgba(79,195,247,0.15)"/>
+                              <text x="17" y="57" text-anchor="middle" font-size="5.5" fill="rgba(79,195,247,0.9)" font-family="monospace">WATER</text>
+                            </svg>
+                            <div class="bottle-lbl">WATER</div>
+                            <div class="pour-stream" id="ps-water" style="background:rgba(79,195,247,0.5)"></div>
+                          </div>
+                        </div>
+          
+                        <div class="sel-label" id="sel-label">-- NO CHEMICAL SELECTED --</div>
+          
+                        <div style="position:relative;">
+                          <div class="beaker-wrap">
+                            <div class="glow-ring" id="glow-ring"></div>
+                            <div class="vapor-wrap" id="vapor-wrap" style="display:none;">
+                              <div class="vap"></div><div class="vap"></div><div class="vap"></div>
+                            </div>
+                            <div style="position:relative;z-index:3;">
+                              <svg id="beaker-svg" width="150" height="190" viewBox="0 0 150 190" aria-hidden="true">
+                                <defs>
+                                  <clipPath id="liq-clip"><rect x="20" y="18" width="110" height="147" rx="2"/></clipPath>
+                                  <linearGradient id="liq-grad" x1="0" y1="0" x2="1" y2="0">
+                                    <stop offset="0%" stop-color="rgba(34,211,238,0.65)"/>
+                                    <stop offset="100%" stop-color="rgba(14,165,233,0.45)"/>
+                                  </linearGradient>
+                                  <filter id="gf"><feGaussianBlur stdDeviation="2.5" result="cb"/><feMerge><feMergeNode in="cb"/><feMergeNode in="SourceGraphic"/></feMerge></filter>
+                                </defs>
+                                <path d="M28 9 L28 18 L18 18 L18 167 Q18 176 28 176 L122 176 Q132 176 132 167 L132 18 L122 18 L122 9 Z" fill="rgba(6,21,38,0.65)" stroke="rgba(34,211,238,0.4)" stroke-width="1.4"/>
+                                <line x1="20" y1="55" x2="30" y2="55" stroke="rgba(34,211,238,0.2)" stroke-width="1"/>
+                                <text x="32" y="58" font-size="7" fill="rgba(34,211,238,0.24)" font-family="monospace">75</text>
+                                <line x1="20" y1="90" x2="30" y2="90" stroke="rgba(34,211,238,0.2)" stroke-width="1"/>
+                                <text x="32" y="93" font-size="7" fill="rgba(34,211,238,0.24)" font-family="monospace">50</text>
+                                <line x1="20" y1="124" x2="30" y2="124" stroke="rgba(34,211,238,0.2)" stroke-width="1"/>
+                                <text x="32" y="127" font-size="7" fill="rgba(34,211,238,0.24)" font-family="monospace">25</text>
+                                <g clip-path="url(#liq-clip)">
+                                  <rect id="liq-rect" x="20" y="176" width="110" height="0" fill="url(#liq-grad)" opacity="0.85"/>
+                                  <path id="liq-surface" d="" fill="rgba(34,211,238,0.3)" opacity="0.5"/>
+                                  <rect id="liq-shimmer" x="20" y="176" width="55" height="2" fill="rgba(255,255,255,0.12)" opacity="0" rx="1"/>
+                                </g>
+                                <path d="M28 9 L28 18 L18 18 L18 167 Q18 176 28 176 L122 176 Q132 176 132 167 L132 18 L122 18 L122 9 Z" fill="none" stroke="rgba(34,211,238,0.6)" stroke-width="1.4" filter="url(#gf)"/>
+                                <line x1="24" y1="22" x2="24" y2="162" stroke="rgba(255,255,255,0.05)" stroke-width="3"/>
+                              </svg>
+                            </div>
+                            <canvas class="bubble-canvas" id="bubble-canvas" width="150" height="190"></canvas>
+                          </div>
+                        </div>
+          
+                        <div class="rxn-badge" id="rxn-badge">CHAMBER IDLE</div>
+          
+                        <div class="action-row">
+                          <button class="act-btn pour-btn" type="button" onclick="pourChem()"><i class="bx bx-down-arrow-alt"></i>Pour</button>
+                          <button class="act-btn mix-btn" type="button" onclick="runMix()"><i class="bx bx-refresh"></i>Mix</button>
+                          <button class="act-btn rst-btn" type="button" onclick="resetChamber()"><i class="bx bx-reset"></i>Reset</button>
+                        </div>
+                      </div>
+                    </div>
+          
+                    <div class="chamber-statusbar">
+                      <div class="sbar-item"><span class="sbar-key">Mode:</span><span class="sbar-val" id="sb-mode">ACID BASE</span></div>
+                      <div class="sbar-item"><span class="sbar-key">pH:</span><span class="sbar-val" id="sb-ph">7.0</span></div>
+                      <div class="sbar-item"><span class="sbar-key">Temp:</span><span class="sbar-val" id="sb-temp">25&deg;C</span></div>
+                      <div class="sbar-item"><span class="sbar-key">Rate:</span><span class="sbar-val" id="sb-rate">0.0 mol/s</span></div>
+                    </div>
+                  </section>
+          
+                  <aside class="right-panel">
+                    <section class="panel-card">
+                      <div class="panel-header">
+                        <span class="panel-header-icon"><i class="bx bx-bar-chart-alt-2"></i></span>
+                        <span class="panel-header-title">Live Meters</span>
+                        <span class="panel-header-badge">Realtime</span>
+                      </div>
+                      <div class="panel-body">
+                        <div class="meter-card">
+                          <div class="meter-top">
+                            <span class="meter-name">pH Level</span>
+                            <div class="meter-val-row">
+                              <span class="meter-val" id="m-ph">7.0</span>
+                              <span class="status-pill pill-neutral" id="sp-ph">NEUTRAL</span>
+                            </div>
+                          </div>
+                          <div class="meter-bar"><div class="meter-fill" id="bar-ph" style="width:50%;background:linear-gradient(90deg,var(--green),var(--cyan));"></div></div>
+                          <div class="meter-foot"><span style="font-family:var(--font-mono);font-size:0.48rem;color:var(--text-muted);">0-14 SCALE</span></div>
+                        </div>
+          
+                        <div class="meter-card">
+                          <div class="meter-top">
+                            <span class="meter-name">Temperature</span>
+                            <div class="meter-val-row">
+                              <span class="meter-val" id="m-temp">25&deg;C</span>
+                              <span class="status-pill pill-low" id="sp-temp2">LOW</span>
+                            </div>
+                          </div>
+                          <div class="meter-bar"><div class="meter-fill" id="bar-temp" style="width:25%;background:linear-gradient(90deg,var(--blue-accent),var(--cyan));"></div></div>
+                        </div>
+          
+                        <div class="meter-card">
+                          <div class="meter-top">
+                            <span class="meter-name">Reaction Rate</span>
+                            <div class="meter-val-row">
+                              <span class="meter-val" id="m-rate">0.0</span>
+                              <span class="meter-unit">mol/s</span>
+                            </div>
+                          </div>
+                          <div class="meter-bar"><div class="meter-fill" id="bar-rate" style="width:0%;background:linear-gradient(90deg,var(--cyan-dim),var(--cyan));"></div></div>
+                          <div class="meter-foot"><span class="status-pill pill-low" id="sp-rate">SLOW</span></div>
+                        </div>
+          
+                        <div class="meter-card">
+                          <div class="meter-top">
+                            <span class="meter-name">Gas Output</span>
+                            <div class="meter-val-row">
+                              <span class="meter-val" id="m-gas">0.0</span>
+                              <span class="meter-unit">mL</span>
+                            </div>
+                          </div>
+                          <div class="meter-bar"><div class="meter-fill" id="bar-gas" style="width:0%;background:linear-gradient(90deg,var(--green),var(--green-bright));"></div></div>
+                          <div class="meter-foot"><span id="sp-gas" style="font-family:var(--font-mono);font-size:0.48rem;color:var(--text-muted);">NONE</span></div>
+                        </div>
+                      </div>
+                    </section>
+          
+                    <section class="panel-card">
+                      <div class="panel-header">
+                        <span class="panel-header-icon"><i class="bx bx-pulse"></i></span>
+                        <span class="panel-header-title">Analysis Result</span>
+                      </div>
+                      <div class="panel-body">
+                        <div class="result-card">
+                          <div class="result-row"><span class="result-k">pH Status</span><span class="result-v hl" id="r-phst">NEUTRAL</span></div>
+                          <div class="result-row"><span class="result-k">Solution</span><span class="result-v" id="r-sol">DISTILLED H2O</span></div>
+                          <div class="result-row"><span class="result-k">Color</span><span class="result-v" id="r-col">CLEAR</span></div>
+                          <div class="result-row"><span class="result-k">Reaction</span><span class="result-v" id="r-rxn">NONE</span></div>
+                        </div>
+                      </div>
+                    </section>
+          
+                    <section class="panel-card obs-card">
+                      <div class="obs-head">
+                        <span class="panel-header-icon"><i class="bx bx-clipboard"></i></span>
+                        <span class="obs-ttl">Observation Log</span>
+                        <span class="obs-cnt" id="log-cnt">[0 entries]</span>
+                      </div>
+                      <div class="obs-body" id="obs-log"></div>
+                    </section>
+                  </aside>
+                </div>
+        </div>
+      </div>
+    </div>
+
+    <script src="js/main.js"></script>
+    <script src="js/chemistry.js"></script>
+  </body>
+</html>

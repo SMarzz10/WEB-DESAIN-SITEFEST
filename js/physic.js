@@ -276,6 +276,44 @@ function drawMeter(ctx, x, y, type, val, col) {
   ctx.fillText(val, x, y+10); ctx.textAlign = "left";
 }
 
+function drawCapacitor(ctx, x, y, V, I) {
+  const charge = Math.min(1, (V / 24)); // 0..1
+  
+  ctx.save();
+  ctx.shadowBlur = 10;
+  ctx.shadowColor = "rgba(34,211,238,0.5)";
+  
+  // Plate kiri
+  ctx.strokeStyle = `rgba(34,211,238,${0.4 + charge * 0.5})`;
+  ctx.lineWidth = 3;
+  ctx.beginPath(); ctx.moveTo(x-6, y-20); ctx.lineTo(x-6, y+20); ctx.stroke();
+  
+  // Plate kanan
+  ctx.beginPath(); ctx.moveTo(x+6, y-20); ctx.lineTo(x+6, y+20); ctx.stroke();
+  
+  // Fill indikator muatan
+  if (running) {
+    const fillH = charge * 36;
+    ctx.fillStyle = `rgba(34,211,238,${0.08 + charge * 0.18})`;
+    ctx.fillRect(x-5, y+18-fillH, 10, fillH);
+  }
+  
+  // Wire kiri-kanan
+  ctx.strokeStyle = "rgba(34,211,238,0.4)"; ctx.lineWidth = 1.5;
+  ctx.beginPath(); ctx.moveTo(x-20, y); ctx.lineTo(x-6, y); ctx.stroke();
+  ctx.beginPath(); ctx.moveTo(x+6, y); ctx.lineTo(x+20, y); ctx.stroke();
+  
+  ctx.restore();
+  
+  // Label
+  ctx.font = "8px Space Mono,monospace";
+  ctx.fillStyle = "rgba(34,211,238,0.6)";
+  ctx.textAlign = "center";
+  ctx.fillText("CAP", x, y - 26);
+  ctx.fillText((charge * 100).toFixed(0) + "%", x, y + 36);
+  ctx.textAlign = "left";
+}
+
 function drawArrow(ctx, x, y, dir, col) {
   ctx.save(); ctx.fillStyle = col; ctx.translate(x, y);
   if (dir === "right") {
@@ -349,6 +387,16 @@ function drawMain() {
   // Voltmeter
   if (document.querySelectorAll(".comp-btn")[1]?.classList.contains("active")) {
     drawMeter(ctx, cx+60, cy-50, "V", V.toFixed(1), "#FBBF24");
+  }
+
+  //Ammeter
+  if  (document.querySelectorAll(".comp-btn")[2]?.classList.contains("active")) {
+    drawMeter(ctx, cx-60, cy+50, "A", I.toFixed(3)+"A", "#0EA5E9");
+  }
+
+  //Capacitor
+  if (document.querySelectorAll(".comp-btn")[3]?.classList.contains("active")) {
+    drawCapacitor(ctx, cx+100, cy+50, V, I);
   }
 
   // Electrons
